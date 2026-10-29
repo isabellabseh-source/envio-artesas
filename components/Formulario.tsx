@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Categoria, Dados, ENVIOS, Foto, PAGAMENTOS, Produto, TEMAS, progresso } from '@/lib/types';
+import { Categoria, Dados, ENVIOS, FOTOS_MAX, FOTOS_MIN, Foto, PAGAMENTOS, Produto, TEMAS, progresso } from '@/lib/types';
 import { reduzirImagem } from '@/lib/imagem';
 import { Coracao, Laco, LinhaCoracao } from './Enfeites';
 
@@ -209,6 +209,16 @@ export default function Formulario({ token, nome, atelie, dadosIniciais, finaliz
                   onChange={(e) => atualizar((d) => void (d.identidade.temaOutro = e.target.value))}
                 />
               )}
+            </Campo>
+            <Campo rotulo="Imagens de inspiração (opcional)" ajuda="Até 2 imagens de sites, artes ou estilos que você gosta e que combinam com o tema.">
+              <EnvioFotos
+                token={token}
+                fotoUrl={fotoUrl}
+                fotos={dados.identidade.inspiracoes ?? []}
+                max={2}
+                aoMudar={(f) => atualizar((d) => void (d.identidade.inspiracoes = f))}
+                texto="Enviar inspiração"
+              />
             </Campo>
           </div>
         )}
@@ -441,7 +451,7 @@ function EtapaProdutos({
 
   return (
     <div className="pilha">
-      <div className="caixa-dica">De 4 a 6 fotos por produto (mínimo 2), sempre com o valor e o tamanho.</div>
+      <div className="caixa-dica">Envie de 1 a 9 fotos por produto, sempre com o valor e o tamanho.</div>
       <div className="abas">
         {dados.categorias.map((c) => (
           <button key={c.id} type="button" className={`aba ${c.id === catId ? 'ativa' : ''}`} onClick={() => setCatId(c.id)}>
@@ -470,7 +480,7 @@ function EtapaProdutos({
                 {expandido && (
                   <div className="produto-corpo pilha">
                     <Campo rotulo="Fotos" ajuda="Toque para escolher da galeria. Pode escolher várias de uma vez.">
-                      <EnvioFotos token={token} fotoUrl={fotoUrl} fotos={p.fotos} max={6} aoMudar={(f) => atualizarP((x) => void (x.fotos = f))} />
+                      <EnvioFotos token={token} fotoUrl={fotoUrl} fotos={p.fotos} min={FOTOS_MIN} max={FOTOS_MAX} aoMudar={(f) => atualizarP((x) => void (x.fotos = f))} />
                     </Campo>
                     <Campo rotulo="Nome do produto">
                       <input value={p.nome} onChange={(e) => atualizarP((x) => void (x.nome = e.target.value))} />
@@ -687,6 +697,7 @@ function EnvioFotos({
   token,
   fotoUrl,
   fotos,
+  min = 0,
   max,
   aoMudar,
   texto = 'Escolher fotos',
@@ -695,6 +706,7 @@ function EnvioFotos({
   token: string;
   fotoUrl: (f: Foto) => string;
   fotos: Foto[];
+  min?: number;
   max: number;
   aoMudar: (f: Foto[]) => void;
   texto?: string;
@@ -766,7 +778,7 @@ function EnvioFotos({
       <input ref={entrada} type="file" accept="image/*" multiple={max > 1} hidden onChange={(e) => escolher(e.target.files)} />
       {max > 1 && (
         <p className="discreto">
-          {fotos.length} de {max} fotos{fotos.length < 2 ? ' · mínimo 2' : ''}
+          {fotos.length} de {max} fotos{fotos.length < min ? ` · mínimo ${min}` : ''}
         </p>
       )}
       {erro && <p className="erro">{erro}</p>}

@@ -109,6 +109,13 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
             {d.identidade.logo ? <img className="logo" src={url(d.identidade.logo)} alt="Logo" /> : <p className="falta">Sem logo</p>}
             <Linha rotulo="Cores" valor={d.identidade.cores} />
             <Linha rotulo="Tema" valor={d.identidade.tema === 'Outro' ? d.identidade.temaOutro : d.identidade.tema} />
+            {!!d.identidade.inspiracoes?.length && (
+              <div className="fotos pequenas">
+                {d.identidade.inspiracoes.map((f) => (
+                  <img key={f.path} src={url(f)} alt="Inspiração" />
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <h3>Sobre o ateliê</h3>

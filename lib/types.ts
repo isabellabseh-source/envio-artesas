@@ -19,7 +19,8 @@ export type Depoimento = { id: string; nome: string; texto: string; print?: Foto
 
 export type Dados = {
   categorias: Categoria[];
-  identidade: { logo?: Foto; cores: string; tema: string; temaOutro: string };
+  /** inspiracoes: up to 2 reference images for the theme (absent in older submissions). */
+  identidade: { logo?: Foto; cores: string; tema: string; temaOutro: string; inspiracoes?: Foto[] };
   sobre: { texto: string; foto?: Foto };
   comercial: {
     pagamentos: string[];
@@ -67,6 +68,9 @@ export type Artesa = {
   terminou_em: string | null;
 };
 
+export const FOTOS_MIN = 1;
+export const FOTOS_MAX = 9;
+
 export const PAGAMENTOS = ['Pix', 'Cartão de crédito', 'Cartão de débito', 'Boleto', 'Parcelamento', 'Dinheiro'];
 export const ENVIOS = ['Correios', 'Motoboy / entrega local', 'Retirada no ateliê', 'Transportadora'];
 export const TEMAS = ['Floral', 'Ursinho', 'Safari', 'Delicado / romântico', 'Moderno / minimalista', 'Outro'];
@@ -74,7 +78,7 @@ export const TEMAS = ['Floral', 'Ursinho', 'Safari', 'Delicado / romântico', 'M
 export function dadosVazios(nomeAtelie = ''): Dados {
   return {
     categorias: [],
-    identidade: { cores: '', tema: '', temaOutro: '' },
+    identidade: { cores: '', tema: '', temaOutro: '', inspiracoes: [] },
     sobre: { texto: '' },
     comercial: { pagamentos: [], pagamentoOutro: '', envios: [], envioOutro: '', taxaLocal: '' },
     depoimentos: [],
@@ -106,7 +110,7 @@ export function progresso(d: Dados) {
       ok:
         d.categorias.length > 0 &&
         d.categorias.every((c) => c.produtos.length > 0) &&
-        produtos.every((p) => p.nome.trim() && (p.valor.trim() || p.temVariacoes) && p.fotos.length >= 2),
+        produtos.every((p) => p.nome.trim() && (p.valor.trim() || p.temVariacoes) && p.fotos.length >= FOTOS_MIN),
     },
     { id: 'identidade', nome: 'Identidade visual', ok: !!d.identidade.logo && !!d.identidade.tema },
     { id: 'sobre', nome: 'Sobre o ateliê', ok: d.sobre.texto.trim().length > 0 },

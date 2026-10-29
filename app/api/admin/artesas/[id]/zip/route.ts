@@ -37,6 +37,7 @@ export async function GET(_req: Request, { params }: Ctx) {
     }
   }
   if (d.identidade.logo) await adicionar('Página inicial', 'Logo', d.identidade.logo);
+  for (const [i, f] of (d.identidade.inspiracoes ?? []).entries()) await adicionar('Página inicial', `Inspiração ${i + 1}`, f);
   if (d.sobre.foto) await adicionar('Página inicial', 'Foto sobre nós', d.sobre.foto);
   for (const [i, dep] of d.depoimentos.entries()) {
     if (dep.print) await adicionar('Página inicial/Depoimentos', nomeArquivo(`${i + 1} - ${dep.nome || 'cliente'}`), dep.print);

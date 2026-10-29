@@ -2,7 +2,7 @@ import 'server-only';
 import { Document, Image, Page, StyleSheet, Text, View, renderToBuffer } from '@react-pdf/renderer';
 import sharp from 'sharp';
 import { lerFoto } from './store';
-import { Artesa, Foto, STATUS_LABEL, progresso } from './types';
+import { Artesa, FOTOS_MIN, Foto, STATUS_LABEL, progresso } from './types';
 
 const COR = '#b4654a';
 const CINZA = '#6b6461';
@@ -67,6 +67,7 @@ export async function gerarPdf(a: Artesa): Promise<Buffer> {
   const d = a.dados;
   const todas: Foto[] = [
     ...d.categorias.flatMap((c) => c.produtos.flatMap((p) => p.fotos)),
+    ...(d.identidade.inspiracoes ?? []),
     ...[d.identidade.logo, d.sobre.foto, ...d.depoimentos.map((x) => x.print)].filter((f): f is Foto => !!f),
   ];
   const fotos = await carregarFotos(todas, 600);
@@ -131,7 +132,7 @@ export async function gerarPdf(a: Artesa): Promise<Buffer> {
                   </>
                 )}
                 {p.obs && <Text style={{ color: CINZA, marginTop: 4 }}>{p.obs}</Text>}
-                <Text style={[{ fontSize: 8, marginTop: 4 }, p.fotos.length < 2 ? s.falta : { color: CINZA }]}>
+                <Text style={[{ fontSize: 8, marginTop: 4 }, p.fotos.length < FOTOS_MIN ? s.falta : { color: CINZA }]}>
                   {p.fotos.length} fotos
                 </Text>
               </View>
@@ -154,6 +155,15 @@ export async function gerarPdf(a: Artesa): Promise<Buffer> {
         {logo && <Image style={s.fotoMedia} src={logo} />}
         <Campo rotulo="Cores" valor={d.identidade.cores} />
         <Campo rotulo="Tema" valor={d.identidade.tema === 'Outro' ? d.identidade.temaOutro : d.identidade.tema} />
+        {!!d.identidade.inspiracoes?.length && (
+          <View style={[s.linha, { gap: 6 }]}>
+            <Text style={s.rotulo}>Inspirações</Text>
+            {d.identidade.inspiracoes.map((f) => {
+              const im = img(f);
+              return im ? <Image key={f.path} style={s.fotoMedia} src={im} /> : null;
+            })}
+          </View>
+        )}
 
         <Text style={s.h2}>Sobre o ateliê</Text>
         {fotoSobre && <Image style={s.fotoMedia} src={fotoSobre} />}
