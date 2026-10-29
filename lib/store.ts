@@ -156,3 +156,18 @@ export async function lerFoto(caminho: string): Promise<Buffer | null> {
   if (error || !data) return null;
   return Buffer.from(await data.arrayBuffer());
 }
+
+/**
+ * On Supabase, stores a generated file and returns a temporary download link (1 hour).
+ * Hosting platforms cap response size (Vercel: 4.5 MB), so big zips are served from storage.
+ * Returns null when running locally, where the file can be sent directly.
+ */
+export async function linkParaBaixar(caminho: string, conteudo: Uint8Array, tipo: string, nome: string): Promise<string | null> {
+  const sb = supabase();
+  if (!sb) return null;
+  const { error } = await sb.storage.from(BUCKET).upload(`downloads/${caminho}`, conteudo, { contentType: tipo, upsert: true });
+  if (error) throw error;
+  const { data, error: e2 } = await sb.storage.from(BUCKET).createSignedUrl(`downloads/${caminho}`, 3600, { download: nome });
+  if (e2 || !data) throw e2 ?? new Error('Falha ao gerar link');
+  return data.signedUrl;
+}

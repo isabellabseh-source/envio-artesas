@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import { estaLogada } from '@/lib/auth';
-import { buscarArtesa, lerFoto } from '@/lib/store';
+import { buscarArtesa, lerFoto, linkParaBaixar } from '@/lib/store';
 import { nomeArquivo } from '@/lib/nomes';
 import { Foto } from '@/lib/types';
 
@@ -45,6 +45,8 @@ export async function GET(_req: Request, { params }: Ctx) {
 
   const conteudo = await zip.generateAsync({ type: 'uint8array', compression: 'STORE' });
   const nome = `${nomeArquivo(a.atelie || a.nome)} - fotos.zip`;
+  const link = await linkParaBaixar(`${a.id}.zip`, conteudo, 'application/zip', nome);
+  if (link) return Response.redirect(link, 303);
   return new Response(conteudo as BodyInit, {
     headers: {
       'Content-Type': 'application/zip',

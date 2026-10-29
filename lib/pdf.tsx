@@ -70,7 +70,7 @@ export async function gerarPdf(a: Artesa): Promise<Buffer> {
     ...(d.identidade.inspiracoes ?? []),
     ...[d.identidade.logo, d.sobre.foto, ...d.depoimentos.map((x) => x.print)].filter((f): f is Foto => !!f),
   ];
-  const fotos = await carregarFotos(todas, 600);
+  const fotos = await carregarFotos(todas, 320);
   const img = (f?: Foto) => (f ? fotos.get(f.path) : undefined);
   const prog = progresso(d);
   const enviadoEm = a.terminou_em
