@@ -3,6 +3,7 @@ import { exigirLogin } from '@/lib/auth';
 import { listarArtesas } from '@/lib/store';
 import { STATUS_LABEL, progresso } from '@/lib/types';
 import { linkWhatsApp } from '@/lib/links';
+import { enderecoBase } from '@/lib/endereco';
 import NovaArtesa from '@/components/admin/NovaArtesa';
 
 export const dynamic = 'force-dynamic';
@@ -10,6 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function Painel() {
   await exigirLogin();
   const artesas = await listarArtesas();
+  const base = await enderecoBase();
   const terminaram = artesas.filter((a) => a.status === 'terminou').length;
 
   return (
@@ -52,7 +54,7 @@ export default async function Painel() {
                     </span>
                   </span>
                 </Link>
-                <a className="botao secundario pequeno" href={linkWhatsApp(a)} target="_blank" rel="noreferrer">
+                <a className="botao secundario pequeno" href={linkWhatsApp(base, a)} target="_blank" rel="noreferrer">
                   Enviar link no WhatsApp
                 </a>
               </li>

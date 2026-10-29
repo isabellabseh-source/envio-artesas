@@ -7,7 +7,8 @@ const COOKIE = 'painel';
 const DURACAO_MS = 30 * 24 * 60 * 60 * 1000;
 
 function segredo() {
-  const s = process.env.SESSION_SECRET;
+  // Falls back to the Supabase secret key so one less setting is needed when going online.
+  const s = process.env.SESSION_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!s || s.length < 16) throw new Error('Defina SESSION_SECRET (pelo menos 16 caracteres) no arquivo .env');
   return s;
 }

@@ -4,6 +4,7 @@ import { exigirLogin } from '@/lib/auth';
 import { buscarArtesa } from '@/lib/store';
 import { Foto, STATUS_LABEL, progresso } from '@/lib/types';
 import { linkArtesa, linkWhatsApp } from '@/lib/links';
+import { enderecoBase } from '@/lib/endereco';
 import AcoesArtesa from '@/components/admin/AcoesArtesa';
 
 export const dynamic = 'force-dynamic';
@@ -23,6 +24,7 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
   await exigirLogin();
   const a = await buscarArtesa((await params).id);
   if (!a) notFound();
+  const base = await enderecoBase();
   const d = a.dados;
   const p = progresso(d);
   const dataBr = (iso: string) => new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
@@ -52,9 +54,9 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
 
       <section className="cartao pilha">
         <h2>Link da artesã</h2>
-        <code className="link-copiar">{linkArtesa(a.token)}</code>
+        <code className="link-copiar">{linkArtesa(base, a.token)}</code>
         <div className="linha">
-          <a className="botao secundario pequeno" href={linkWhatsApp(a)} target="_blank" rel="noreferrer">
+          <a className="botao secundario pequeno" href={linkWhatsApp(base, a)} target="_blank" rel="noreferrer">
             Enviar no WhatsApp
           </a>
           <AcoesArtesa id={a.id} status={a.status} />

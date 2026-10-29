@@ -33,11 +33,11 @@ Abra http://localhost:3000/admin. Sem Supabase configurado, os dados e fotos fic
    | Variável | Valor |
    | --- | --- |
    | `ADMIN_PASSWORD` | a senha do seu painel |
-   | `SESSION_SECRET` | um texto longo e aleatório |
-   | `NEXT_PUBLIC_SITE_URL` | o endereço do sistema, ex.: `https://envio-artesas.netlify.app` |
    | `SUPABASE_URL` | Project URL do Supabase |
-   | `SUPABASE_SERVICE_ROLE_KEY` | chave service_role (nunca compartilhe) |
+   | `SUPABASE_SERVICE_ROLE_KEY` | chave secreta (secret / service_role) do Supabase — nunca compartilhe |
    | `RESEND_API_KEY`, `AVISO_EMAIL` | opcional: aviso por e-mail quando alguém termina |
+   | `NEXT_PUBLIC_SITE_URL` | opcional: endereço fixo do sistema (sem isso, usa o endereço em que o painel foi aberto) |
+   | `SESSION_SECRET` | opcional: segredo do login do painel (sem isso, usa a chave secreta do Supabase) |
 
 3. Clique em *Deploy*. Para usar um endereço próprio, adicione o domínio em *Domain management*.
 
