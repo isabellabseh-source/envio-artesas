@@ -26,19 +26,23 @@ Abra http://localhost:3000/admin. Sem Supabase configurado, os dados e fotos fic
 1. **Supabase** (grátis): crie um projeto em https://supabase.com. Em *SQL Editor*, cole e rode o
    arquivo [`supabase/schema.sql`](supabase/schema.sql). Em *Project Settings → API*, copie a
    *Project URL* e a chave *service_role*.
-2. **Vercel**: em https://vercel.com, *Add New → Project*, escolha este repositório e preencha as
-   variáveis de ambiente:
+2. **Netlify** (grátis, permite uso comercial): em https://app.netlify.com entre com o GitHub,
+   clique em *Add new site → Import an existing project*, escolha este repositório e, antes de publicar,
+   abra *Environment variables* e preencha:
 
    | Variável | Valor |
    | --- | --- |
    | `ADMIN_PASSWORD` | a senha do seu painel |
    | `SESSION_SECRET` | um texto longo e aleatório |
-   | `NEXT_PUBLIC_SITE_URL` | o endereço do sistema, ex.: `https://envio.seusite.com.br` |
+   | `NEXT_PUBLIC_SITE_URL` | o endereço do sistema, ex.: `https://envio-artesas.netlify.app` |
    | `SUPABASE_URL` | Project URL do Supabase |
    | `SUPABASE_SERVICE_ROLE_KEY` | chave service_role (nunca compartilhe) |
    | `RESEND_API_KEY`, `AVISO_EMAIL` | opcional: aviso por e-mail quando alguém termina |
 
-3. Clique em *Deploy*. Para usar um endereço próprio, adicione o domínio em *Settings → Domains*.
+3. Clique em *Deploy*. Para usar um endereço próprio, adicione o domínio em *Domain management*.
+
+O plano grátis da Netlify inclui 100 GB de tráfego e 125 mil chamadas de funções por mês. Se passar
+disso, o site fica suspenso até o mês seguinte, a não ser que você mude para um plano pago.
 
 ## Como funciona por dentro
 
