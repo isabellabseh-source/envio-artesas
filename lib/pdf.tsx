@@ -188,7 +188,7 @@ export async function gerarPdf(a: Artesa): Promise<Buffer> {
 
       <Page size="A4" style={s.pagina}>
         <Text style={s.etapa}>ETAPA 3</Text>
-        <Text style={s.h1}>Domínio e Canva</Text>
+        <Text style={s.h1}>Domínio</Text>
         <Campo rotulo="Autorizou uso dos dados" valor={d.dominio.consentimento ? 'Sim' : ''} />
         <Campo rotulo="Nome completo" valor={d.dominio.nomeCompleto} />
         <Campo rotulo="Data de nascimento" valor={d.dominio.nascimento.split('-').reverse().join('/')} />
@@ -200,8 +200,6 @@ export async function gerarPdf(a: Artesa): Promise<Buffer> {
         <Campo rotulo="E-mail" valor={d.dominio.email} />
         <Campo rotulo="Nome do ateliê" valor={d.dominio.nomeAtelie} />
         <Campo rotulo="Endereço do site" valor={d.dominio.enderecoSite} />
-        <Text style={s.h2}>Canva</Text>
-        <Campo rotulo="E-mail Canva Pro" valor={d.canva.naoTenho ? 'Ainda não tem conta Canva Pro' : d.canva.email} />
         <Rodape />
       </Page>
 

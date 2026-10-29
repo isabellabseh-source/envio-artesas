@@ -43,7 +43,6 @@ export type Dados = {
     nomeAtelie: string;
     enderecoSite: string;
   };
-  canva: { email: string; naoTenho: boolean };
 };
 
 export type Status = 'nao_comecou' | 'enviando' | 'terminou' | 'em_producao' | 'entregue';
@@ -93,7 +92,6 @@ export function dadosVazios(nomeAtelie = ''): Dados {
       nomeAtelie,
       enderecoSite: '',
     },
-    canva: { email: '', naoTenho: false },
   };
 }
 
@@ -130,7 +128,6 @@ export function progresso(d: Dados) {
           (k) => String(d.dominio[k as keyof Dados['dominio']]).trim(),
         ),
     },
-    { id: 'canva', nome: 'Canva', ok: d.canva.naoTenho || d.canva.email.trim().length > 0 },
   ];
   const feitas = secoes.filter((s) => s.ok).length;
   return { secoes, feitas, total: secoes.length, pct: Math.round((feitas / secoes.length) * 100), produtos: produtos.length };

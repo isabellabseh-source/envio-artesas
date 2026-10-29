@@ -142,7 +142,7 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
       </section>
 
       <section className="cartao">
-        <h2>Domínio e Canva</h2>
+        <h2>Domínio</h2>
         <div className="ficha-grade">
           <div>
             <Linha rotulo="Autorizou uso dos dados" valor={d.dominio.consentimento ? 'Sim' : ''} />
@@ -158,7 +158,6 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
             <Linha rotulo="E-mail" valor={d.dominio.email} />
             <Linha rotulo="Nome do ateliê" valor={d.dominio.nomeAtelie} />
             <Linha rotulo="Endereço do site" valor={d.dominio.enderecoSite} />
-            <Linha rotulo="Canva Pro" valor={d.canva.naoTenho ? 'Ainda não tem' : d.canva.email} />
           </div>
         </div>
       </section>

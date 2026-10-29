@@ -139,7 +139,7 @@ function Painel({ d, terminou }: { d: Dados; terminou: boolean }) {
       </section>
 
       <section className="cartao">
-        <h2>Domínio e Canva</h2>
+        <h2>Domínio</h2>
         <div className="ficha-grade">
           <div>
             <Linha rotulo="Autorizou uso dos dados" valor={d.dominio.consentimento ? 'Sim' : ''} />
@@ -153,7 +153,6 @@ function Painel({ d, terminou }: { d: Dados; terminou: boolean }) {
             <Linha rotulo="Telefone" valor={d.dominio.telefone} />
             <Linha rotulo="E-mail" valor={d.dominio.email} />
             <Linha rotulo="Endereço do site" valor={d.dominio.enderecoSite} />
-            <Linha rotulo="Canva Pro" valor={d.canva.naoTenho ? 'Ainda não tem' : d.canva.email} />
           </div>
         </div>
       </section>

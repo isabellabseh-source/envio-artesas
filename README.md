@@ -1,7 +1,7 @@
 # Envio de conteúdo das artesãs
 
 Sistema para cada artesã enviar o conteúdo do site catálogo (fotos, produtos, valores, categorias,
-pagamento, envio, depoimentos, sobre nós, dados do domínio e Canva), seguindo o *Guia Site Catálogo*.
+pagamento, envio, depoimentos, sobre nós, dados do domínio), seguindo o *Guia Site Catálogo*.
 
 - **Artesã:** recebe um link pessoal pelo WhatsApp, sem cadastro nem senha. Preenche em etapas, no
   celular; tudo salva sozinho. No fim, aperta **“Terminei”**.

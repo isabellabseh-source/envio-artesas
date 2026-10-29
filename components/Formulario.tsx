@@ -24,8 +24,7 @@ const ETAPAS = [
   { id: 'comercial', grupo: 'Etapa 2 · Página inicial', titulo: 'Pagamento e envio' },
   { id: 'depoimentos', grupo: 'Etapa 2 · Página inicial', titulo: 'Depoimentos' },
   { id: 'links', grupo: 'Etapa 2 · Página inicial', titulo: 'Links' },
-  { id: 'dominio', grupo: 'Etapa 3 · Domínio e Canva', titulo: 'Dados para o domínio' },
-  { id: 'canva', grupo: 'Etapa 3 · Domínio e Canva', titulo: 'Canva' },
+  { id: 'dominio', grupo: 'Etapa 3 · Domínio', titulo: 'Dados para o domínio' },
   { id: 'revisar', grupo: 'Final', titulo: 'Revisar e enviar' },
 ] as const;
 
@@ -267,28 +266,6 @@ export default function Formulario({ token, nome, atelie, dadosIniciais, finaliz
         )}
 
         {atual.id === 'dominio' && <EtapaDominio dados={dados} atualizar={atualizar} />}
-
-        {atual.id === 'canva' && (
-          <div className="pilha">
-            <p>Para eu montar as artes do seu site, preciso do e-mail da sua conta Canva Pro.</p>
-            <Campo rotulo="E-mail da conta Canva Pro">
-              <input
-                type="email"
-                inputMode="email"
-                disabled={dados.canva.naoTenho}
-                value={dados.canva.email}
-                onChange={(e) => atualizar((d) => void (d.canva.email = e.target.value))}
-              />
-            </Campo>
-            <label className="marcador">
-              <input type="checkbox" checked={dados.canva.naoTenho} onChange={(e) => atualizar((d) => void (d.canva.naoTenho = e.target.checked))} />
-              Ainda não tenho conta Canva Pro
-            </label>
-            {dados.canva.naoTenho && (
-              <div className="caixa-aviso">Sem problema! Crie a conta em canva.com e assine o Pro. Depois volte aqui e coloque o e-mail.</div>
-            )}
-          </div>
-        )}
 
         {atual.id === 'revisar' && (
           <div className="pilha">
