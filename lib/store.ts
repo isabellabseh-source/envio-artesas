@@ -171,3 +171,27 @@ export async function linkParaBaixar(caminho: string, conteudo: Uint8Array, tipo
   if (e2 || !data) throw e2 ?? new Error('Falha ao gerar link');
   return data.signedUrl;
 }
+
+/** Removes an artisan and every photo or generated file stored for her. */
+export async function excluirArtesa(id: string): Promise<boolean> {
+  const sb = supabase();
+  if (!sb) {
+    const lista = await lerLocal();
+    const resto = lista.filter((a) => a.id !== id);
+    if (resto.length === lista.length) return false;
+    await gravarLocal(resto);
+    await fs.rm(path.join(DATA_DIR, 'fotos', id), { recursive: true, force: true });
+    return true;
+  }
+  for (;;) {
+    const { data } = await sb.storage.from(BUCKET).list(id, { limit: 1000 });
+    const arquivos = (data ?? []).filter((f) => f.id).map((f) => `${id}/${f.name}`);
+    if (!arquivos.length) break;
+    const { error } = await sb.storage.from(BUCKET).remove(arquivos);
+    if (error) throw error;
+  }
+  await sb.storage.from(BUCKET).remove([`downloads/${id}.pdf`, `downloads/${id}.zip`]);
+  const { data, error } = await sb.from('artesas').delete().eq('id', id).select('id');
+  if (error) throw error;
+  return !!data?.length;
+}

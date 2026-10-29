@@ -6,6 +6,7 @@ import { Foto, STATUS_LABEL, progresso } from '@/lib/types';
 import { linkArtesa, linkWhatsApp } from '@/lib/links';
 import { enderecoBase } from '@/lib/endereco';
 import AcoesArtesa from '@/components/admin/AcoesArtesa';
+import EditarCadastro from '@/components/admin/EditarCadastro';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,6 +62,8 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
           </a>
           <AcoesArtesa id={a.id} status={a.status} />
         </div>
+        <p className="discreto">WhatsApp: {a.whatsapp || 'não informado'}</p>
+        <EditarCadastro key={`${a.nome}|${a.atelie}|${a.whatsapp}`} id={a.id} nome={a.nome} atelie={a.atelie} whatsapp={a.whatsapp} />
       </section>
 
       <section className="cartao">
