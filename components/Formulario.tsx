@@ -654,10 +654,24 @@ function EtapaDominio({ dados, atualizar }: { dados: Dados; atualizar: Atualizar
         <Campo rotulo="Telefone">
           <input inputMode="tel" autoComplete="tel" value={dom.telefone} onChange={set('telefone')} />
         </Campo>
-        <Campo rotulo="E-mail">
-          <input type="email" inputMode="email" autoComplete="email" value={dom.email} onChange={set('email')} />
-        </Campo>
       </div>
+      <Campo rotulo="E-mail">
+        <div className="caixa-aviso">
+          <strong>Atenção:</strong> use um e-mail que você abre sempre e que <strong>não esteja com a caixa cheia</strong>. É
+          nele que chegam os e-mails da compra e da renovação do domínio.
+        </div>
+        <input
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          placeholder="seuemail@gmail.com"
+          value={dom.email}
+          onChange={set('email')}
+        />
+        {dom.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(dom.email.trim()) && (
+          <p className="erro">Confira o e-mail: parece que falta alguma parte (exemplo: maria@gmail.com).</p>
+        )}
+      </Campo>
       <Campo rotulo="Nome do ateliê">
         <input value={dom.nomeAtelie} onChange={set('nomeAtelie')} />
       </Campo>
