@@ -4,7 +4,16 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Categoria, Dados, ENVIOS, Foto, PAGAMENTOS, Produto, TEMAS, progresso } from '@/lib/types';
 import { reduzirImagem } from '@/lib/imagem';
 
-type Props = { token: string; nome: string; atelie: string; dadosIniciais: Dados; finalizado: boolean };
+type Props = {
+  token: string;
+  nome: string;
+  atelie: string;
+  dadosIniciais: Dados;
+  finalizado: boolean;
+  /** Overrides where photos are loaded from (used by the offline preview). */
+  urlFoto?: (f: Foto) => string;
+  aoMudar?: (d: Dados) => void;
+};
 
 const ETAPAS = [
   { id: 'inicio', grupo: '', titulo: 'Boas-vindas' },
@@ -33,7 +42,7 @@ const novoProduto = (): Produto => ({
   fotos: [],
 });
 
-export default function Formulario({ token, nome, atelie, dadosIniciais, finalizado: finalizadoInicial }: Props) {
+export default function Formulario({ token, nome, atelie, dadosIniciais, finalizado: finalizadoInicial, urlFoto, aoMudar }: Props) {
   const [dados, setDados] = useState<Dados>(dadosIniciais);
   const [etapa, setEtapa] = useState(0);
   const [salvo, setSalvo] = useState<'salvo' | 'salvando' | 'erro'>('salvo');
@@ -42,7 +51,11 @@ export default function Formulario({ token, nome, atelie, dadosIniciais, finaliz
   const pendente = useRef(false);
   const primeiro = useRef(true);
 
-  const fotoUrl = useCallback((f: Foto) => `/api/envio/${token}/foto/${f.path}`, [token]);
+  const fotoUrl = useCallback((f: Foto) => (urlFoto ? urlFoto(f) : `/api/envio/${token}/foto/${f.path}`), [token, urlFoto]);
+
+  useEffect(() => {
+    aoMudar?.(dados);
+  }, [dados, aoMudar]);
 
   /** Mutates a copy of the data; autosave picks it up. */
   const atualizar = useCallback((mudar: (d: Dados) => void) => {
@@ -386,17 +399,15 @@ function EtapaCategorias({ dados, atualizar }: { dados: Dados; atualizar: Atuali
           <li key={c.id}>
             <input value={c.nome} onChange={(e) => atualizar((d) => void (d.categorias[i].nome = e.target.value))} />
             <span className="discreto">{c.produtos.length} produtos</span>
-            <button
-              type="button"
+            <BotaoConfirmar
               className="botao-icone"
-              aria-label={`Apagar ${c.nome}`}
-              onClick={() => {
-                if (c.produtos.length && !confirm(`Apagar a categoria "${c.nome}" e os ${c.produtos.length} produtos dela?`)) return;
-                atualizar((d) => void d.categorias.splice(i, 1));
-              }}
+              rotuloAcessivel={`Apagar ${c.nome}`}
+              pergunta={`Apagar a categoria "${c.nome}" e os ${c.produtos.length} produtos dela?`}
+              semPerguntar={!c.produtos.length}
+              aoConfirmar={() => atualizar((d) => void d.categorias.splice(i, 1))}
             >
               ✕
-            </button>
+            </BotaoConfirmar>
           </li>
         ))}
       </ul>
@@ -524,15 +535,13 @@ function EtapaProdutos({
                       <textarea rows={2} value={p.obs} onChange={(e) => atualizarP((x) => void (x.obs = e.target.value))} />
                     </Campo>
                     <div className="linha entre">
-                      <button
-                        type="button"
+                      <BotaoConfirmar
                         className="botao-texto perigo"
-                        onClick={() => {
-                          if (confirm('Apagar este produto?')) atualizar((d) => void d.categorias[ci].produtos.splice(pi, 1));
-                        }}
+                        pergunta="Apagar este produto e as fotos dele?"
+                        aoConfirmar={() => atualizar((d) => void d.categorias[ci].produtos.splice(pi, 1))}
                       >
                         Apagar produto
-                      </button>
+                      </BotaoConfirmar>
                       <button type="button" className="botao secundario pequeno" onClick={() => setAberto(null)}>
                         Pronto
                       </button>
@@ -756,23 +765,97 @@ function EnvioFotos({
   );
 }
 
-function BotaoTerminar({ token, pendente, aoTerminar }: { token: string; pendente: boolean; aoTerminar: () => void }) {
-  const [enviando, setEnviando] = useState(false);
+/** A button that asks for confirmation inline (browser confirm() dialogs are easy to miss on phones). */
+function BotaoConfirmar({
+  className,
+  rotuloAcessivel,
+  pergunta,
+  rotuloSim = 'Sim, apagar',
+  semPerguntar = false,
+  aoConfirmar,
+  children,
+}: {
+  className: string;
+  rotuloAcessivel?: string;
+  pergunta: string;
+  rotuloSim?: string;
+  semPerguntar?: boolean;
+  aoConfirmar: () => void;
+  children: React.ReactNode;
+}) {
+  const [perguntando, setPerguntando] = useState(false);
+  if (perguntando) {
+    return (
+      <div className="confirmar" role="alertdialog" aria-label={pergunta}>
+        <p>{pergunta}</p>
+        <div className="linha">
+          <button type="button" className="botao secundario pequeno" onClick={() => setPerguntando(false)}>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="botao pequeno perigo"
+            onClick={() => {
+              setPerguntando(false);
+              aoConfirmar();
+            }}
+          >
+            {rotuloSim}
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
-    <button
-      type="button"
-      className="botao largo grande"
-      disabled={enviando || pendente}
-      onClick={async () => {
-        if (!confirm('Enviar tudo para a Isa? Depois disso, para mudar algo é preciso pedir para ela reabrir.')) return;
-        setEnviando(true);
-        const r = await fetch(`/api/envio/${token}/finalizar`, { method: 'POST' });
-        setEnviando(false);
-        if (r.ok) aoTerminar();
-        else alert('Não deu certo. Confira a internet e tente de novo.');
-      }}
-    >
-      {pendente ? 'Salvando…' : enviando ? 'Enviando…' : 'Terminei, pode fazer meu site! ♡'}
+    <button type="button" className={className} aria-label={rotuloAcessivel} onClick={() => (semPerguntar ? aoConfirmar() : setPerguntando(true))}>
+      {children}
     </button>
+  );
+}
+
+function BotaoTerminar({ token, pendente, aoTerminar }: { token: string; pendente: boolean; aoTerminar: () => void }) {
+  const [etapa, setEtapa] = useState<'pronto' | 'confirmando' | 'enviando'>('pronto');
+  const [erro, setErro] = useState('');
+
+  if (etapa === 'confirmando') {
+    return (
+      <div className="confirmar destaque">
+        <p>
+          <strong>Enviar tudo para a Isa?</strong> Depois disso, para mudar alguma coisa é preciso pedir para ela reabrir.
+        </p>
+        <div className="linha">
+          <button type="button" className="botao secundario" onClick={() => setEtapa('pronto')}>
+            Ainda não
+          </button>
+          <button
+            type="button"
+            className="botao"
+            onClick={async () => {
+              setEtapa('enviando');
+              setErro('');
+              try {
+                const r = await fetch(`/api/envio/${token}/finalizar`, { method: 'POST' });
+                if (!r.ok) throw new Error();
+                aoTerminar();
+              } catch {
+                setErro('Não deu certo. Confira a internet e tente de novo.');
+                setEtapa('pronto');
+              }
+            }}
+          >
+            Sim, enviar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <button type="button" className="botao largo grande" disabled={etapa === 'enviando' || pendente} onClick={() => setEtapa('confirmando')}>
+        {pendente ? 'Salvando…' : etapa === 'enviando' ? 'Enviando…' : 'Terminei, pode fazer meu site! ♡'}
+      </button>
+      {erro && <p className="erro">{erro}</p>}
+    </div>
   );
 }

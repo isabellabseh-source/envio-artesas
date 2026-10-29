@@ -1,0 +1,68 @@
+:root {
+  color-scheme: light;
+}
+body {
+  background: var(--fundo);
+}
+.previa-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--texto);
+  color: #fbf7f4;
+  font-size: 0.9rem;
+}
+.previa-abas {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.previa-abas button {
+  min-height: 36px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #fbf7f4;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.previa-abas button.ativa {
+  background: #fbf7f4;
+  color: var(--texto);
+}
+.previa-abas button:focus-visible,
+.botao:focus-visible,
+.opcao:focus-visible,
+.aba:focus-visible {
+  outline: 3px solid var(--cor);
+  outline-offset: 2px;
+}
+.previa-fim {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 16px 48px;
+}
+.form-app .topo {
+  top: 0;
+}
+.centro {
+  min-height: auto;
+  padding-block: 48px 20px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
