@@ -389,7 +389,7 @@ select {
   max-width: 640px;
   margin: 0 auto;
   min-height: 100vh;
-  padding-bottom: 110px;
+  padding-bottom: 170px;
 }
 .topo {
   position: sticky;
@@ -543,7 +543,8 @@ select {
   gap: 12px;
   max-width: 640px;
   margin: 0 auto;
-  padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px))
+  /* Extra room at the bottom keeps the buttons above the hosting badge (bottom-right corner, free plan). */
+  padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(70px + env(safe-area-inset-bottom, 0px))
     max(16px, env(safe-area-inset-left, 0px));
   background: linear-gradient(transparent, var(--fundo) 35%);
 }
