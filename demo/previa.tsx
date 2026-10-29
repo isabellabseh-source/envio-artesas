@@ -7,6 +7,8 @@ import { createRoot } from 'react-dom/client';
 import Formulario from '@/components/Formulario';
 import { Dados, Foto, dadosVazios, progresso } from '@/lib/types';
 
+declare const __FOTO_ISA__: string;
+
 const fotos = new Map<string, string>();
 let aoFinalizar = () => {};
 const fetchOriginal = window.fetch.bind(window);
@@ -197,6 +199,7 @@ function Previa() {
             finalizado={terminou}
             urlFoto={urlFoto}
             aoMudar={aoMudar}
+            fotoIsa={__FOTO_ISA__}
           />
           {terminou && (
             <div className="previa-fim">

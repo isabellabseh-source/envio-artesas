@@ -1,9 +1,6 @@
 :root {
   color-scheme: light;
 }
-body {
-  background: var(--fundo);
-}
 .previa-barra {
   display: flex;
   flex-wrap: wrap;
@@ -13,8 +10,8 @@ body {
   padding-block: 10px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  background: var(--texto);
-  color: #fbf7f4;
+  background: var(--cor-escura);
+  color: #fff8f4;
   font-size: 0.9rem;
 }
 .previa-abas {
@@ -30,14 +27,14 @@ body {
   border: none;
   border-radius: 999px;
   background: transparent;
-  color: #fbf7f4;
+  color: #fff8f4;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 .previa-abas button.ativa {
-  background: #fbf7f4;
-  color: var(--texto);
+  background: #fff8f4;
+  color: var(--cor-escura);
 }
 .previa-abas button:focus-visible,
 .botao:focus-visible,
@@ -65,4 +62,7 @@ body {
     transition: none !important;
     animation: none !important;
   }
+}
+.previa-barra strong {
+  color: inherit;
 }

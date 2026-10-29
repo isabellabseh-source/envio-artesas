@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Categoria, Dados, ENVIOS, Foto, PAGAMENTOS, Produto, TEMAS, progresso } from '@/lib/types';
 import { reduzirImagem } from '@/lib/imagem';
+import { Coracao, Laco, LinhaCoracao } from './Enfeites';
 
 type Props = {
   token: string;
@@ -13,6 +14,8 @@ type Props = {
   /** Overrides where photos are loaded from (used by the offline preview). */
   urlFoto?: (f: Foto) => string;
   aoMudar?: (d: Dados) => void;
+  /** Isa's photo on the welcome screen. */
+  fotoIsa?: string;
 };
 
 const ETAPAS = [
@@ -41,7 +44,7 @@ const novoProduto = (): Produto => ({
   fotos: [],
 });
 
-export default function Formulario({ token, nome, atelie, dadosIniciais, finalizado: finalizadoInicial, urlFoto, aoMudar }: Props) {
+export default function Formulario({ token, nome, atelie, dadosIniciais, finalizado: finalizadoInicial, urlFoto, aoMudar, fotoIsa = '/isa.webp' }: Props) {
   const [dados, setDados] = useState<Dados>(dadosIniciais);
   const [etapa, setEtapa] = useState(0);
   const [salvo, setSalvo] = useState<'salvo' | 'salvando' | 'erro'>('salvo');
@@ -107,9 +110,15 @@ export default function Formulario({ token, nome, atelie, dadosIniciais, finaliz
   if (finalizado) {
     return (
       <main className="centro">
-        <div className="cartao texto-centro">
-          <div className="emoji-grande">♡</div>
+        <div className="cartao cartao-costurado texto-centro">
+          <div className="recebido-enfeite">
+            <Laco largura={88} />
+          </div>
           <h1>Recebido, {nome.split(' ')[0]}!</h1>
+          <div className="recebido-coracoes">
+            <Coracao tamanho={44} />
+            <Coracao cor="azul" tamanho={30} />
+          </div>
           <p>Tudo o que você enviou chegou certinho. Agora é só aguardar o contato da Isa para agendar o seu site.</p>
           <p className="discreto">Se precisar mudar alguma coisa, fale com a Isa pelo WhatsApp que ela reabre o envio.</p>
         </div>
@@ -130,17 +139,26 @@ export default function Formulario({ token, nome, atelie, dadosIniciais, finaliz
           </span>
         </div>
         <div className="barra">
-          <div className="barra-cheia" style={{ width: `${(etapa / (ETAPAS.length - 1)) * 100}%` }} />
+          <div className="barra-cheia" style={{ width: `${Math.max(4, (etapa / (ETAPAS.length - 1)) * 100)}%` }}>
+            <Coracao tamanho={18} className="barra-coracao" />
+          </div>
         </div>
       </header>
 
       <main className="conteudo">
         {atual.grupo && <p className="grupo">{atual.grupo}</p>}
-        <h1>{atual.titulo}</h1>
+        {atual.id !== 'inicio' && <h1 className="titulo-etapa">{atual.titulo}</h1>}
 
         {atual.id === 'inicio' && (
           <div className="pilha">
-            <p className="grande">Oi, {nome.split(' ')[0]}! Aqui você envia tudo o que eu preciso para criar o site do seu ateliê.</p>
+            <div className="boas-vindas">
+              <img src={fotoIsa} alt="Isa, que vai criar o seu site" width={640} height={587} />
+              <Coracao tamanho={46} className="bv-coracao-1" />
+              <Coracao cor="azul" tamanho={28} className="bv-coracao-2" />
+            </div>
+            <h1 className="titulo-boas-vindas">Oi, {nome.split(' ')[0]}!</h1>
+            <LinhaCoracao className="linha-coracao" />
+            <p className="grande">Aqui você envia tudo o que eu preciso para criar o site do seu ateliê.</p>
             <ul className="lista-simples">
               <li>Tudo é salvo sozinho. Pode parar e voltar depois por este mesmo link.</li>
               <li>Dica: envie 2 categorias por dia, ao longo da semana. Fica mais leve!</li>

@@ -2,7 +2,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
   const { erro } = await searchParams;
   return (
     <main className="centro">
-      <form className="cartao pilha" method="post" action="/api/admin/login">
+      <form className="cartao cartao-costurado pilha" method="post" action="/api/admin/login">
         <h1>Painel</h1>
         <div className="campo">
           <label className="rotulo" htmlFor="senha">
