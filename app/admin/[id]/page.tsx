@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { exigirLogin } from '@/lib/auth';
 import { buscarArtesa } from '@/lib/store';
-import { Foto, STATUS_LABEL, progresso } from '@/lib/types';
+import { Arquivo, Foto, STATUS_LABEL, progresso } from '@/lib/types';
+import { nomeArquivo } from '@/lib/nomes';
 import { linkArtesa, linkWhatsApp } from '@/lib/links';
 import { enderecoBase } from '@/lib/endereco';
 import AcoesArtesa from '@/components/admin/AcoesArtesa';
@@ -11,6 +12,9 @@ import EditarCadastro from '@/components/admin/EditarCadastro';
 export const dynamic = 'force-dynamic';
 
 const url = (f: Foto) => `/api/admin/foto/${f.path}`;
+/** Downloads a PDF or video under a readable name. */
+const urlArquivo = (a: Arquivo, nome: string) =>
+  `/api/admin/arquivo/${a.path}?nome=${encodeURIComponent(`${nomeArquivo(nome)}.${a.path.split('.').pop()}`)}`;
 
 function Linha({ rotulo, valor }: { rotulo: string; valor?: string }) {
   return (
@@ -99,6 +103,13 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
                     </p>
                   )}
                   {pr.obs && <p className="discreto">{pr.obs}</p>}
+                  {pr.video && (
+                    <p>
+                      <a className="botao secundario pequeno" href={urlArquivo(pr.video, `${pr.nome || 'Produto'} - vídeo`)}>
+                        🎬 Baixar vídeo
+                      </a>
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
@@ -121,6 +132,11 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
                 ))}
               </div>
             )}
+            {(d.identidade.pdfs ?? []).map((a) => (
+              <p key={a.path}>
+                <a href={urlArquivo(a, a.nome.replace(/\.pdf$/i, ''))}>📄 {a.nome}</a>
+              </p>
+            ))}
           </div>
           <div>
             <h3>Sobre o ateliê</h3>

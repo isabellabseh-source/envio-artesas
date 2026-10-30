@@ -132,6 +132,7 @@ export async function gerarPdf(a: Artesa): Promise<Buffer> {
                   </>
                 )}
                 {p.obs && <Text style={{ color: CINZA, marginTop: 4 }}>{p.obs}</Text>}
+                {p.video && <Text style={{ color: COR, fontSize: 8, marginTop: 4 }}>Tem vídeo (baixar pelo painel)</Text>}
                 <Text style={[{ fontSize: 8, marginTop: 4 }, p.fotos.length < FOTOS_MIN ? s.falta : { color: CINZA }]}>
                   {p.fotos.length} fotos
                 </Text>
@@ -163,6 +164,10 @@ export async function gerarPdf(a: Artesa): Promise<Buffer> {
               return im ? <Image key={f.path} style={s.fotoMedia} src={im} /> : null;
             })}
           </View>
+        )}
+
+        {!!d.identidade.pdfs?.length && (
+          <Campo rotulo="PDFs enviados" valor={`${d.identidade.pdfs.map((x) => x.nome).join(', ')} (no .zip das fotos)`} />
         )}
 
         <Text style={s.h2}>Sobre o ateliê</Text>

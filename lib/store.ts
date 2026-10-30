@@ -137,9 +137,41 @@ export async function salvarFoto(artesaId: string, conteudo: Buffer, tipo: strin
   return caminho;
 }
 
-/** Only accepts paths created by salvarFoto ("<uuid>/<uuid>.<ext>"). */
+/** Only accepts paths created by salvarFoto or novoArquivo ("<uuid>/<uuid>.<ext>"). */
 export function caminhoValido(caminho: string) {
-  return /^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|png)$/.test(caminho);
+  return /^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|png|pdf|mp4|mov|m4v|webm|3gp)$/.test(caminho);
+}
+
+/**
+ * Prepares a PDF or video upload. On Supabase the browser sends the file straight to storage with the
+ * returned link, because hosting platforms cap request size (Netlify: 6 MB) and videos are bigger.
+ * Locally there is no link and the file goes through PUT /api/envio/<token>/arquivo.
+ */
+export async function novoArquivo(artesaId: string, ext: string): Promise<{ path: string; url: string | null }> {
+  const caminho = `${artesaId}/${randomUUID()}.${ext}`;
+  const sb = supabase();
+  if (!sb) return { path: caminho, url: null };
+  const { data, error } = await sb.storage.from(BUCKET).createSignedUploadUrl(caminho);
+  if (error || !data) throw error ?? new Error('Falha ao preparar o envio');
+  return { path: caminho, url: data.signedUrl };
+}
+
+/** Local mode only: stores a PDF or video sent through the server. */
+export async function salvarArquivoLocal(caminho: string, conteudo: Buffer) {
+  const destino = path.join(DATA_DIR, 'fotos', caminho);
+  await fs.mkdir(path.dirname(destino), { recursive: true });
+  await fs.writeFile(destino, conteudo);
+}
+
+/** A temporary (1 hour) link to open a stored file, or null when running locally. */
+export async function linkTemporario(caminho: string, nomeDownload?: string): Promise<string | null> {
+  const sb = supabase();
+  if (!sb || !caminhoValido(caminho)) return null;
+  const { data, error } = await sb.storage
+    .from(BUCKET)
+    .createSignedUrl(caminho, 3600, nomeDownload ? { download: nomeDownload } : undefined);
+  if (error || !data) return null;
+  return data.signedUrl;
 }
 
 export async function lerFoto(caminho: string): Promise<Buffer | null> {

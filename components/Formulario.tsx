@@ -1,7 +1,22 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Categoria, Dados, ENVIOS, FOTOS_MAX, FOTOS_MIN, Foto, PAGAMENTOS, Produto, TEMAS, progresso } from '@/lib/types';
+import {
+  Arquivo,
+  Categoria,
+  Dados,
+  ENVIOS,
+  FOTOS_MAX,
+  FOTOS_MIN,
+  Foto,
+  PAGAMENTOS,
+  PDF_MB,
+  PDFS_MAX,
+  Produto,
+  TEMAS,
+  VIDEO_MB,
+  progresso,
+} from '@/lib/types';
 import { reduzirImagem } from '@/lib/imagem';
 import { Coracao, Laco, LinhaCoracao } from './Enfeites';
 
@@ -218,6 +233,18 @@ export default function Formulario({ token, nome, atelie, dadosIniciais, finaliz
                 max={2}
                 aoMudar={(f) => atualizar((d) => void (d.identidade.inspiracoes = f))}
                 texto="Enviar inspiração"
+              />
+            </Campo>
+            <Campo
+              rotulo="Arquivos em PDF (opcional)"
+              ajuda={`Até ${PDFS_MAX} PDFs, como manual da marca, cardápio ou tabela de preços. Cada um com até ${PDF_MB} MB.`}
+            >
+              <EnvioArquivos
+                token={token}
+                tipo="pdf"
+                arquivos={dados.identidade.pdfs ?? []}
+                max={PDFS_MAX}
+                aoMudar={(a) => atualizar((d) => void (d.identidade.pdfs = a))}
               />
             </Campo>
           </div>
@@ -472,7 +499,7 @@ function EtapaProdutos({
                   <span className="produto-resumo">
                     <strong>{p.nome || 'Produto sem nome'}</strong>
                     <span className="discreto">
-                      {p.valor ? `R$ ${p.valor}` : p.temVariacoes ? `${p.variacoes.length} tamanhos` : 'sem valor'} · {p.fotos.length} fotos
+                      {p.valor ? `R$ ${p.valor}` : p.temVariacoes ? `${p.variacoes.length} tamanhos` : 'sem valor'} · {p.fotos.length} fotos{p.video ? ' · vídeo' : ''}
                     </span>
                   </span>
                   <span>{expandido ? '▲' : '▼'}</span>
@@ -481,6 +508,15 @@ function EtapaProdutos({
                   <div className="produto-corpo pilha">
                     <Campo rotulo="Fotos" ajuda="Toque para escolher da galeria. Pode escolher várias de uma vez.">
                       <EnvioFotos token={token} fotoUrl={fotoUrl} fotos={p.fotos} min={FOTOS_MIN} max={FOTOS_MAX} aoMudar={(f) => atualizarP((x) => void (x.fotos = f))} />
+                    </Campo>
+                    <Campo rotulo="Vídeo (opcional)" ajuda={`1 vídeo curto do produto, de até ${VIDEO_MB} MB (cerca de 30 segundos).`}>
+                      <EnvioArquivos
+                        token={token}
+                        tipo="video"
+                        arquivos={p.video ? [p.video] : []}
+                        max={1}
+                        aoMudar={(a) => atualizarP((x) => void (x.video = a[0]))}
+                      />
                     </Campo>
                     <Campo rotulo="Nome do produto">
                       <input value={p.nome} onChange={(e) => atualizarP((x) => void (x.nome = e.target.value))} />
@@ -689,6 +725,135 @@ function EtapaDominio({ dados, atualizar }: { dados: Dados; atualizar: Atualizar
         <input value={dom.enderecoSite} onChange={set('enderecoSite')} />
       </Campo>
       <p className="discreto">Na compra chegam alguns e-mails: vamos cadastrar juntas a senha do domínio no dia agendado do seu site.</p>
+    </div>
+  );
+}
+
+const mb = (bytes: number) =>
+  bytes < 1024 * 1024
+    ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+    : `${(bytes / 1024 / 1024).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} MB`;
+
+/** Sends a file to the storage link with upload progress (videos can take a while on mobile data). */
+function enviarComProgresso(url: string, arquivo: File, aoProgredir: (pct: number) => void) {
+  return new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', url);
+    xhr.setRequestHeader('x-upsert', 'false');
+    xhr.upload.onprogress = (e) => e.lengthComputable && aoProgredir(Math.round((e.loaded / e.total) * 100));
+    xhr.onload = () => (xhr.status < 300 ? resolve() : reject(new Error(String(xhr.status))));
+    xhr.onerror = () => reject(new Error('rede'));
+    const corpo = new FormData();
+    corpo.append('cacheControl', '3600');
+    corpo.append('', arquivo);
+    xhr.send(corpo);
+  });
+}
+
+/** PDFs and videos: sent as they are, straight to storage, with a size limit instead of resizing. */
+function EnvioArquivos({
+  token,
+  tipo,
+  arquivos,
+  max,
+  aoMudar,
+}: {
+  token: string;
+  tipo: 'pdf' | 'video';
+  arquivos: Arquivo[];
+  max: number;
+  aoMudar: (a: Arquivo[]) => void;
+}) {
+  const [pct, setPct] = useState<number | null>(null);
+  const [erro, setErro] = useState('');
+  const entrada = useRef<HTMLInputElement>(null);
+  const atuais = useRef(arquivos);
+  atuais.current = arquivos;
+  const limiteMb = tipo === 'pdf' ? PDF_MB : VIDEO_MB;
+  const nomeTipo = tipo === 'pdf' ? 'PDF' : 'vídeo';
+
+  const escolher = async (lista: FileList | null) => {
+    const arq = lista?.[0];
+    if (entrada.current) entrada.current.value = '';
+    if (!arq) return;
+    setErro('');
+    if (arq.size > limiteMb * 1024 * 1024) {
+      setErro(
+        tipo === 'video'
+          ? `Este vídeo tem ${mb(arq.size)} e o limite é ${limiteMb} MB. Grave um vídeo mais curto ou envie com qualidade menor.`
+          : `Este PDF tem ${mb(arq.size)} e o limite é ${limiteMb} MB.`,
+      );
+      return;
+    }
+    setPct(0);
+    try {
+      const r = await fetch(`/api/envio/${token}/arquivo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo, nome: arq.name, tamanho: arq.size }),
+      });
+      if (r.status === 400) throw new Error('formato');
+      if (!r.ok) throw new Error();
+      const { path, url } = (await r.json()) as { path: string; url: string | null };
+      if (url) await enviarComProgresso(url, arq, setPct);
+      else {
+        const local = await fetch(`/api/envio/${token}/arquivo?path=${encodeURIComponent(path)}`, { method: 'PUT', body: arq });
+        if (!local.ok) throw new Error();
+      }
+      const novo = { path, nome: arq.name, tamanho: arq.size };
+      aoMudar(max === 1 ? [novo] : [...atuais.current, novo]);
+    } catch (e) {
+      setErro(
+        e instanceof Error && e.message === 'formato'
+          ? tipo === 'pdf'
+            ? 'Escolha um arquivo em PDF.'
+            : 'Formato de vídeo não aceito. Use um vídeo gravado no celular (MP4 ou MOV).'
+          : `O ${nomeTipo} não foi enviado. Confira a internet e tente de novo.`,
+      );
+    }
+    setPct(null);
+  };
+
+  return (
+    <div className="pilha-curta">
+      {arquivos.length > 0 && (
+        <ul className="arquivos">
+          {arquivos.map((a, i) => (
+            <li key={a.path}>
+              <span className="arquivo-icone" aria-hidden="true">
+                {tipo === 'pdf' ? '📄' : '🎬'}
+              </span>
+              <a href={`/api/envio/${token}/arquivo/${a.path}`} target="_blank" rel="noreferrer" className="arquivo-nome">
+                {a.nome}
+              </a>
+              <span className="discreto">{mb(a.tamanho)}</span>
+              <button type="button" className="botao-icone" aria-label={`Remover ${a.nome}`} onClick={() => aoMudar(arquivos.filter((_, j) => j !== i))}>
+                ✕
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {pct !== null ? (
+        <div className="envio-progresso" role="status">
+          <span style={{ width: `${pct}%` }} />
+          <p>Enviando {nomeTipo}… {pct}%</p>
+        </div>
+      ) : (
+        (max === 1 || arquivos.length < max) && (
+          <button type="button" className="botao secundario pequeno" onClick={() => entrada.current?.click()}>
+            {max === 1 && arquivos.length ? `Trocar ${nomeTipo}` : `+ Enviar ${nomeTipo}`}
+          </button>
+        )
+      )}
+      <input
+        ref={entrada}
+        type="file"
+        accept={tipo === 'pdf' ? 'application/pdf,.pdf' : 'video/*'}
+        hidden
+        onChange={(e) => escolher(e.target.files)}
+      />
+      {erro && <p className="erro">{erro}</p>}
     </div>
   );
 }

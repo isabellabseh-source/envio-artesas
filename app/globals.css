@@ -956,3 +956,57 @@ blockquote footer {
     animation: none !important;
   }
 }
+
+/* PDFs and videos */
+.pilha-curta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.arquivos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.arquivos li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 2px dashed var(--borda);
+  border-radius: 18px;
+  background: var(--creme);
+}
+.arquivo-icone {
+  font-size: 1.4rem;
+}
+.arquivo-nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cor-escura);
+  font-weight: 700;
+}
+.envio-progresso {
+  width: 100%;
+}
+.envio-progresso > span {
+  display: block;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--azul, #bcdcf1), var(--cor));
+  transition: width 0.3s;
+  min-width: 12px;
+}
+.envio-progresso p {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+  color: var(--discreto);
+}

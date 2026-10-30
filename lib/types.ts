@@ -1,5 +1,13 @@
 export type Foto = { path: string };
 
+/** A PDF or video sent as is (uploaded straight to storage, not resized). */
+export type Arquivo = { path: string; nome: string; tamanho: number };
+
+export const PDFS_MAX = 2;
+export const PDF_MB = 20;
+export const VIDEO_MB = 50;
+export const EXTENSOES = { pdf: ['pdf'], video: ['mp4', 'mov', 'm4v', 'webm', '3gp'] } as const;
+
 export type Variacao = { tamanho: string; valor: string };
 
 export type Produto = {
@@ -11,6 +19,8 @@ export type Produto = {
   temVariacoes: boolean;
   variacoes: Variacao[];
   fotos: Foto[];
+  /** One optional video per product (absent in older submissions). */
+  video?: Arquivo;
 };
 
 export type Categoria = { id: string; nome: string; produtos: Produto[] };
@@ -20,7 +30,8 @@ export type Depoimento = { id: string; nome: string; texto: string; print?: Foto
 export type Dados = {
   categorias: Categoria[];
   /** inspiracoes: up to 2 reference images for the theme (absent in older submissions). */
-  identidade: { logo?: Foto; cores: string; tema: string; temaOutro: string; inspiracoes?: Foto[] };
+  /** pdfs: up to 2 extra files, such as a brand manual or price list (absent in older submissions). */
+  identidade: { logo?: Foto; cores: string; tema: string; temaOutro: string; inspiracoes?: Foto[]; pdfs?: Arquivo[] };
   sobre: { texto: string; foto?: Foto };
   comercial: {
     pagamentos: string[];

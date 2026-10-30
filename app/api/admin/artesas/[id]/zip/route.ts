@@ -9,7 +9,10 @@ export const maxDuration = 60;
 
 type Ctx = { params: Promise<{ id: string }> };
 
-/** Full-quality photos, one folder per category, named after the product and its price. */
+/**
+ * Full-quality photos, one folder per category, named after the product and its price, plus the PDFs.
+ * Videos stay out (too big to zip in memory); the panel has a download button for each one.
+ */
 export async function GET(_req: Request, { params }: Ctx) {
   if (!(await estaLogada())) return new Response('Não autorizado', { status: 401 });
   const a = await buscarArtesa((await params).id);
@@ -21,7 +24,7 @@ export async function GET(_req: Request, { params }: Ctx) {
   const adicionar = async (pasta: string, base: string, f: Foto) => {
     const conteudo = await lerFoto(f.path);
     if (!conteudo) return;
-    const ext = f.path.endsWith('.png') ? 'png' : 'jpg';
+    const ext = f.path.split('.').pop();
     let nome = `${pasta}/${base}.${ext}`;
     for (let n = 2; usados.has(nome); n++) nome = `${pasta}/${base} (${n}).${ext}`;
     usados.add(nome);
@@ -38,6 +41,7 @@ export async function GET(_req: Request, { params }: Ctx) {
   }
   if (d.identidade.logo) await adicionar('Página inicial', 'Logo', d.identidade.logo);
   for (const [i, f] of (d.identidade.inspiracoes ?? []).entries()) await adicionar('Página inicial', `Inspiração ${i + 1}`, f);
+  for (const pdf of d.identidade.pdfs ?? []) await adicionar('Página inicial/PDFs', nomeArquivo(pdf.nome.replace(/\.pdf$/i, '')), pdf);
   if (d.sobre.foto) await adicionar('Página inicial', 'Foto sobre nós', d.sobre.foto);
   for (const [i, dep] of d.depoimentos.entries()) {
     if (dep.print) await adicionar('Página inicial/Depoimentos', nomeArquivo(`${i + 1} - ${dep.nome || 'cliente'}`), dep.print);

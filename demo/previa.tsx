@@ -23,6 +23,10 @@ window.fetch = async (entrada: RequestInfo | URL, init?: RequestInit) => {
     fotos.set(id, URL.createObjectURL(arquivo));
     return Response.json({ path: id });
   }
+  if (url.endsWith('/arquivo') && init?.method === 'POST') {
+    const { nome } = JSON.parse(String(init.body));
+    return Response.json({ path: `previa-${Date.now()}-${nome}`, url: null });
+  }
   if (url.endsWith('/finalizar')) setTimeout(() => aoFinalizar(), 0);
   return Response.json({ ok: true });
 };
