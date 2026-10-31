@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { estaLogada } from '@/lib/auth';
-import { apagarArquivoPainel, atualizarFicha, caminhoPainelValido, novoArquivoPainel, salvarArquivoPainelLocal } from '@/lib/agenda';
-import { buscarArtesa } from '@/lib/store';
+import { apagarArquivoPainel, atualizarFicha, caminhoPainelValido, lerFicha, novoArquivoPainel, salvarArquivoPainelLocal } from '@/lib/agenda';
 import { ARQUIVO_PAINEL_MB, CATEGORIAS_ARQUIVO, CategoriaArquivo, EXTENSOES_PAINEL } from '@/lib/types';
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -9,7 +8,7 @@ type Ctx = { params: Promise<{ id: string }> };
 async function liberado(ctx: Ctx) {
   if (!(await estaLogada())) return { erro: NextResponse.json({ erro: 'Não autorizado' }, { status: 401 }) };
   const { id } = await ctx.params;
-  if (!(await buscarArtesa(id))) return { erro: NextResponse.json({ erro: 'Não encontrada' }, { status: 404 }) };
+  if (!(await lerFicha(id))) return { erro: NextResponse.json({ erro: 'Não encontrado' }, { status: 404 }) };
   return { id };
 }
 
@@ -36,7 +35,7 @@ export async function PUT(req: Request, ctx: Ctx) {
   return NextResponse.json({ ok: true });
 }
 
-/** Step 2: after the upload, records the file in the artisan's notes. */
+/** Step 2: after the upload, records the file in the agenda entry. */
 export async function PATCH(req: Request, ctx: Ctx) {
   const { id, erro } = await liberado(ctx);
   if (erro) return erro;

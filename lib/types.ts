@@ -159,9 +159,13 @@ export const EXTENSOES_PAINEL = ['pdf', 'zip', 'rar', 'html', 'htm', 'png', 'jpg
 
 export type ArquivoPainel = Arquivo & { categoria: CategoriaArquivo; enviadoEm: string };
 
+/** One site on Isa's agenda. Independent from the artisans: it may point to one (artesaId) or not. */
 export type Ficha = {
-  tipo: string;
+  nome: string;
+  artesaId?: string;
   /** Dates as YYYY-MM-DD. */
+  terminouEnvio: string;
+  tipo: string;
   previsao: string;
   entregueEm: string;
   valor: string;
@@ -173,5 +177,5 @@ export type Ficha = {
 };
 
 export function fichaVazia(): Ficha {
-  return { tipo: '', previsao: '', entregueEm: '', valor: '', pagamento: 'Pendente', enderecoSite: '', renovacaoDominio: '', notas: '', arquivos: [] };
+  return { nome: '', terminouEnvio: '', tipo: '', previsao: '', entregueEm: '', valor: '', pagamento: 'Pendente', enderecoSite: '', renovacaoDominio: '', notas: '', arquivos: [] };
 }

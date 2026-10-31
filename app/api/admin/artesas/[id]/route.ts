@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { estaLogada } from '@/lib/auth';
 import { atualizarArtesa, excluirArtesa, novoToken } from '@/lib/store';
-import { excluirFicha } from '@/lib/agenda';
 import { STATUS_LABEL, Status } from '@/lib/types';
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -34,6 +33,5 @@ export async function DELETE(_req: Request, { params }: Ctx) {
   if (!(await estaLogada())) return NextResponse.json({ erro: 'Não autorizado' }, { status: 401 });
   const { id } = await params;
   if (!(await excluirArtesa(id))) return NextResponse.json({ erro: 'Não encontrada' }, { status: 404 });
-  await excluirFicha(id);
   return NextResponse.json({ ok: true });
 }

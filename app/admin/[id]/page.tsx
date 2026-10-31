@@ -8,8 +8,6 @@ import { linkArtesa, linkWhatsApp } from '@/lib/links';
 import { enderecoBase } from '@/lib/endereco';
 import AcoesArtesa from '@/components/admin/AcoesArtesa';
 import EditarCadastro from '@/components/admin/EditarCadastro';
-import FichaPainel from '@/components/admin/FichaPainel';
-import { lerFicha } from '@/lib/agenda';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,21 +30,15 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
   const a = await buscarArtesa((await params).id);
   if (!a) notFound();
   const base = await enderecoBase();
-  const ficha = await lerFicha(a.id);
   const d = a.dados;
   const p = progresso(d);
   const dataBr = (iso: string) => new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 
   return (
     <div className="painel">
-      <div className="linha">
-        <Link href="/admin" className="botao-texto">
-          ← Todas as artesãs
-        </Link>
-        <Link href="/admin/agenda" className="botao-texto">
-          Agenda de sites
-        </Link>
-      </div>
+      <Link href="/admin" className="botao-texto">
+        ← Todas as artesãs
+      </Link>
       <header className="painel-topo">
         <div>
           <h1>{a.atelie || a.nome}</h1>
@@ -77,8 +69,6 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
         <p className="discreto">WhatsApp: {a.whatsapp || 'não informado'}</p>
         <EditarCadastro key={`${a.nome}|${a.atelie}|${a.whatsapp}`} id={a.id} nome={a.nome} atelie={a.atelie} whatsapp={a.whatsapp} />
       </section>
-
-      <FichaPainel id={a.id} inicial={ficha} terminouEm={a.terminou_em} />
 
       <section className="cartao">
         <h2>Catálogo</h2>

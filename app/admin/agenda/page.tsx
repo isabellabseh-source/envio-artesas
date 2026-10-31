@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { exigirLogin } from '@/lib/auth';
 import { listarArtesas } from '@/lib/store';
 import { lerFichas } from '@/lib/agenda';
-import { Artesa, Ficha, STATUS_LABEL, fichaVazia } from '@/lib/types';
+import { Artesa, Ficha, STATUS_LABEL } from '@/lib/types';
+import NovoNaAgenda from '@/components/admin/NovoNaAgenda';
 
 export const dynamic = 'force-dynamic';
 
-type Item = { a: Artesa; f: Ficha };
+type Item = { id: string; f: Ficha; a?: Artesa };
 
 const hoje = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Sao_Paulo' }); // YYYY-MM-DD
 const dataBr = (ymd: string) => ymd.split('-').reverse().join('/');
@@ -27,20 +28,16 @@ const somarDias = (ymd: string, dias: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-function Linha({ a, f, destaque }: Item & { destaque?: string }) {
+function Linha({ id, f, a, destaque }: Item & { destaque?: string }) {
   return (
     <li>
-      <Link href={`/admin/${a.id}`} className="agenda-linha">
+      <Link href={`/admin/agenda/${id}`} className="agenda-linha">
         <span className="artesa-nome">
-          <strong>{a.atelie || a.nome}</strong>
-          <span className="discreto">
-            {[f.tipo, a.terminou_em && `terminou o envio em ${new Date(a.terminou_em).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`]
-              .filter(Boolean)
-              .join(' · ') || a.nome}
-          </span>
+          <strong>{f.nome || 'Sem nome'}</strong>
+          <span className="discreto">{[f.tipo, f.terminouEnvio && `terminou o envio em ${dataBr(f.terminouEnvio)}`].filter(Boolean).join(' · ') || ' '}</span>
         </span>
         <span className={`agenda-data ${destaque ?? ''}`}>{f.entregueEm ? `entregue ${dataBr(f.entregueEm)}` : f.previsao ? dataBr(f.previsao) : 'sem data'}</span>
-        <span className={`etiqueta etiqueta-${a.status}`}>{STATUS_LABEL[a.status]}</span>
+        {a ? <span className={`etiqueta etiqueta-${a.status}`}>{STATUS_LABEL[a.status]}</span> : <span className="etiqueta">fora do sistema</span>}
         <span className={`etiqueta pagamento-${f.pagamento === 'Pago' ? 'ok' : 'pendente'}`}>
           {f.pagamento}
           {f.valor ? ` · R$ ${f.valor}` : ''}
@@ -54,10 +51,17 @@ export default async function Agenda() {
   await exigirLogin();
   const [artesas, fichas] = await Promise.all([listarArtesas(), lerFichas()]);
   const hj = hoje();
-  const itens: Item[] = artesas.map((a) => ({ a, f: fichas[a.id] ?? fichaVazia() }));
-  const entregue = ({ a, f }: Item) => a.status === 'entregue' || !!f.entregueEm;
+  const porId = new Map(artesas.map((a) => [a.id, a]));
+  const itens: Item[] = Object.entries(fichas).map(([id, f]) => {
+    const a = f.artesaId ? porId.get(f.artesaId) : undefined;
+    return { id, a, f: { ...f, nome: f.nome || (a ? a.atelie || a.nome : '') } };
+  });
+  const entregue = ({ f }: Item) => !!f.entregueEm;
+  const ligadas = new Set(itens.map((i) => i.f.artesaId));
+  const terminaramFora = artesas.filter((a) => a.status === 'terminou' && !ligadas.has(a.id));
+  const opcoes = artesas.filter((a) => !ligadas.has(a.id)).map((a) => ({ id: a.id, nome: a.atelie || a.nome }));
 
-  const abertos = itens.filter((i) => !entregue(i) && (i.f.previsao || i.a.status === 'terminou' || i.a.status === 'em_producao'));
+  const abertos = itens.filter((i) => !entregue(i));
   const atrasados = abertos.filter((i) => i.f.previsao && i.f.previsao < hj).sort((x, y) => x.f.previsao.localeCompare(y.f.previsao));
   const semData = abertos.filter((i) => !i.f.previsao);
   const porMes = new Map<string, Item[]>();
@@ -72,7 +76,7 @@ export default async function Agenda() {
   const aReceber = itens.filter((i) => i.f.pagamento !== 'Pago').reduce((t, i) => t + numero(i.f.valor), 0);
   const esteMes = itens.filter((i) => i.f.entregueEm.startsWith(hj.slice(0, 7))).length;
   const renovacoes = itens
-    .filter((i) => i.f.renovacaoDominio && i.f.renovacaoDominio <= somarDias(hj, 30))
+    .filter((i) => i.f.renovacaoDominio && i.f.renovacaoDominio >= somarDias(hj, -30) && i.f.renovacaoDominio <= somarDias(hj, 30))
     .sort((x, y) => x.f.renovacaoDominio.localeCompare(y.f.renovacaoDominio));
 
   return (
@@ -83,6 +87,16 @@ export default async function Agenda() {
       <header className="painel-topo">
         <h1>Agenda de sites</h1>
       </header>
+
+      <NovoNaAgenda artesas={opcoes} />
+
+      {terminaramFora.length > 0 && (
+        <div className="caixa-aviso">
+          {terminaramFora.length === 1 ? 'Esta artesã terminou o envio' : 'Estas artesãs terminaram o envio'} e ainda não{' '}
+          {terminaramFora.length === 1 ? 'está' : 'estão'} na agenda: {terminaramFora.map((a) => a.atelie || a.nome).join(', ')}. Use o botão
+          acima para colocar.
+        </div>
+      )}
 
       <div className="resumo">
         <div className="resumo-item">
@@ -106,7 +120,7 @@ export default async function Agenda() {
       {renovacoes.length > 0 && (
         <div className="caixa-aviso">
           <strong>Domínios para renovar nos próximos 30 dias:</strong>{' '}
-          {renovacoes.map(({ a, f }) => `${a.atelie || a.nome} (${dataBr(f.renovacaoDominio)})`).join(', ')}
+          {renovacoes.map(({ f }) => `${f.nome} (${dataBr(f.renovacaoDominio)})`).join(', ')}
         </div>
       )}
 
@@ -115,7 +129,7 @@ export default async function Agenda() {
           <h2>Atrasados</h2>
           <ul className="agenda-lista">
             {atrasados.map((i) => (
-              <Linha key={i.a.id} {...i} destaque="atrasado" />
+              <Linha key={i.id} {...i} destaque="atrasado" />
             ))}
           </ul>
         </section>
@@ -128,7 +142,7 @@ export default async function Agenda() {
           </h2>
           <ul className="agenda-lista">
             {lista.map((i) => (
-              <Linha key={i.a.id} {...i} />
+              <Linha key={i.id} {...i} />
             ))}
           </ul>
         </section>
@@ -137,23 +151,23 @@ export default async function Agenda() {
       {semData.length > 0 && (
         <section className="cartao">
           <h2>Sem previsão de entrega</h2>
-          <p className="discreto">Já terminaram o envio ou estão em produção. Abra cada uma e coloque a data prevista.</p>
+          <p className="discreto">Toque em cada um para colocar a data prevista.</p>
           <ul className="agenda-lista">
             {semData.map((i) => (
-              <Linha key={i.a.id} {...i} />
+              <Linha key={i.id} {...i} />
             ))}
           </ul>
         </section>
       )}
 
-      {!abertos.length && <p className="discreto">Nenhum site na fila. Quando uma artesã terminar o envio, ela aparece aqui.</p>}
+      {!abertos.length && <p className="discreto">Nenhum site na fila. Use o botão acima para colocar o primeiro.</p>}
 
       {entregues.length > 0 && (
         <section className="cartao">
           <h2>Entregues</h2>
           <ul className="agenda-lista">
             {entregues.map((i) => (
-              <Linha key={i.a.id} {...i} />
+              <Linha key={i.id} {...i} />
             ))}
           </ul>
         </section>

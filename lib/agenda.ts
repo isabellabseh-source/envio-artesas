@@ -6,7 +6,8 @@ import { createClient } from '@supabase/supabase-js';
 import { Ficha, fichaVazia } from './types';
 
 /**
- * Isa's agenda notes, kept apart from the artisans' data (which the artisan form overwrites).
+ * Isa's site agenda, kept apart from the artisans' data (which the artisan form overwrites).
+ * Entries have their own ids; early entries were keyed by the artisan id and are linked to her on read.
  * Stored as one JSON file in the private bucket, so no database change is needed.
  */
 
@@ -30,7 +31,9 @@ export async function lerFichas(): Promise<Record<string, Ficha>> {
         })()
       : await fs.readFile(path.join(LOCAL, 'painel', 'fichas.json'), 'utf8');
     const bruto = JSON.parse(texto) as Record<string, Partial<Ficha>>;
-    return Object.fromEntries(Object.entries(bruto).map(([id, f]) => [id, { ...fichaVazia(), ...f }]));
+    return Object.fromEntries(
+      Object.entries(bruto).map(([id, f]) => [id, { ...fichaVazia(), ...(f.nome === undefined ? { artesaId: id } : {}), ...f }]),
+    );
   } catch {
     return {};
   }
@@ -48,21 +51,30 @@ async function gravarFichas(fichas: Record<string, Ficha>) {
   if (error) throw error;
 }
 
-export async function lerFicha(id: string): Promise<Ficha> {
-  return (await lerFichas())[id] ?? fichaVazia();
+export async function lerFicha(id: string): Promise<Ficha | null> {
+  return (await lerFichas())[id] ?? null;
 }
 
-/** Changes one artisan's notes; mudar receives the latest saved version. */
-export async function atualizarFicha(id: string, mudar: (f: Ficha) => void): Promise<Ficha> {
+export async function criarFicha(inicial: Partial<Ficha>): Promise<string> {
+  const id = randomUUID();
   const fichas = await lerFichas();
-  const f = fichas[id] ?? fichaVazia();
+  fichas[id] = { ...fichaVazia(), ...inicial };
+  await gravarFichas(fichas);
+  return id;
+}
+
+/** Changes one agenda entry; mudar receives the latest saved version. Returns null if it does not exist. */
+export async function atualizarFicha(id: string, mudar: (f: Ficha) => void): Promise<Ficha | null> {
+  const fichas = await lerFichas();
+  const f = fichas[id];
+  if (!f) return null;
   mudar(f);
   fichas[id] = f;
   await gravarFichas(fichas);
   return f;
 }
 
-/** Removes the notes and the delivered files of an artisan. */
+/** Removes an agenda entry and its delivered files. */
 export async function excluirFicha(id: string) {
   const fichas = await lerFichas();
   if (fichas[id]) {

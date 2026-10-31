@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { enviarComProgresso, mb } from '@/lib/envio';
 import {
   ARQUIVO_PAINEL_MB,
@@ -13,12 +14,14 @@ import {
   TIPOS_SITE,
 } from '@/lib/types';
 
-type Props = { id: string; inicial: Ficha; terminouEm: string | null };
+type Props = { id: string; inicial: Ficha };
 
 const dataBr = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 
-/** Isa's agenda card for one artisan: dates, payment, notes and the delivered files. */
-export default function FichaPainel({ id, inicial, terminouEm }: Props) {
+/** One site on Isa's agenda: dates, payment, notes and the delivered files. */
+export default function FichaPainel({ id, inicial }: Props) {
+  const router = useRouter();
+  const [excluir, setExcluir] = useState(false);
   const [ficha, setFicha] = useState(inicial);
   const [estado, setEstado] = useState<'salvo' | 'mudou' | 'salvando' | 'erro'>('salvo');
   const mudar = <K extends keyof Ficha>(campo: K, valor: Ficha[K]) => {
@@ -29,7 +32,7 @@ export default function FichaPainel({ id, inicial, terminouEm }: Props) {
   const salvar = async () => {
     setEstado('salvando');
     const { arquivos: _, ...campos } = ficha;
-    const r = await fetch(`/api/admin/artesas/${id}/ficha`, {
+    const r = await fetch(`/api/admin/agenda/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(campos),
@@ -42,8 +45,10 @@ export default function FichaPainel({ id, inicial, terminouEm }: Props) {
 
   return (
     <section className="cartao pilha">
-      <h2>Agenda do site</h2>
-      <p className="discreto">Só você vê esta parte.</p>
+      <label className="campo">
+        <span className="rotulo">Artesã / ateliê</span>
+        <input required value={ficha.nome} onChange={(e) => mudar('nome', e.target.value)} />
+      </label>
 
       <div className="ficha-campos">
         <label className="campo">
@@ -55,10 +60,10 @@ export default function FichaPainel({ id, inicial, terminouEm }: Props) {
             ))}
           </select>
         </label>
-        <div className="campo">
+        <label className="campo">
           <span className="rotulo">Terminou o envio</span>
-          <span className="valor-fixo">{terminouEm ? dataBr(terminouEm) : 'ainda não terminou'}</span>
-        </div>
+          <input type="date" value={ficha.terminouEnvio} onChange={(e) => mudar('terminouEnvio', e.target.value)} />
+        </label>
         <label className="campo">
           <span className="rotulo">Previsão de entrega</span>
           <input type="date" value={ficha.previsao} onChange={(e) => mudar('previsao', e.target.value)} />
@@ -102,6 +107,33 @@ export default function FichaPainel({ id, inicial, terminouEm }: Props) {
       <h3>Arquivos do site entregue</h3>
       <p className="discreto">Guarde aqui o arquivo do site, o manual e os acessos. Se a artesã perder, você tem uma cópia.</p>
       <ArquivosEntregues id={id} arquivos={ficha.arquivos} aoMudar={(arquivos) => setFicha((f) => ({ ...f, arquivos }))} />
+
+      {!excluir ? (
+        <button type="button" className="botao-texto perigo" onClick={() => setExcluir(true)}>
+          Tirar este site da agenda
+        </button>
+      ) : (
+        <div className="confirmar">
+          <p>Tirar {ficha.nome || 'este site'} da agenda e apagar os arquivos guardados aqui? Não dá para desfazer.</p>
+          <div className="linha">
+            <button type="button" className="botao secundario pequeno" onClick={() => setExcluir(false)}>
+              Não
+            </button>
+            <button
+              type="button"
+              className="botao pequeno"
+              onClick={async () => {
+                const r = await fetch(`/api/admin/agenda/${id}`, { method: 'DELETE' });
+                if (!r.ok) return setEstado('erro');
+                router.push('/admin/agenda');
+                router.refresh();
+              }}
+            >
+              Sim, tirar
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -120,7 +152,7 @@ function ArquivosEntregues({ id, arquivos, aoMudar }: { id: string; arquivos: Ar
     if (arq.size > ARQUIVO_PAINEL_MB * 1024 * 1024) return setErro(`Este arquivo tem ${mb(arq.size)} e o limite é ${ARQUIVO_PAINEL_MB} MB.`);
     setPct(0);
     try {
-      const base = `/api/admin/artesas/${id}/ficha/arquivos`;
+      const base = `/api/admin/agenda/${id}/arquivos`;
       const r = await fetch(base, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -149,7 +181,7 @@ function ArquivosEntregues({ id, arquivos, aoMudar }: { id: string; arquivos: Ar
   };
 
   const apagar = async (caminho: string) => {
-    const r = await fetch(`/api/admin/artesas/${id}/ficha/arquivos?path=${encodeURIComponent(caminho)}`, { method: 'DELETE' });
+    const r = await fetch(`/api/admin/agenda/${id}/arquivos?path=${encodeURIComponent(caminho)}`, { method: 'DELETE' });
     setApagando(null);
     if (!r.ok) return setErro('Não foi possível apagar.');
     aoMudar(((await r.json()) as Ficha).arquivos);
