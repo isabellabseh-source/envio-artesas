@@ -18,9 +18,14 @@ export default async function Painel() {
     <div className="painel">
       <header className="painel-topo">
         <h1>Suas artesãs</h1>
-        <form method="post" action="/api/admin/sair">
-          <button className="botao-texto">Sair</button>
-        </form>
+        <div className="linha">
+          <Link href="/admin/agenda" className="botao secundario pequeno">
+            📅 Agenda de sites
+          </Link>
+          <form method="post" action="/api/admin/sair">
+            <button className="botao-texto">Sair</button>
+          </form>
+        </div>
       </header>
 
       {terminaram > 0 && (

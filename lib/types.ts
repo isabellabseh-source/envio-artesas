@@ -147,3 +147,31 @@ export function progresso(d: Dados) {
   const feitas = secoes.filter((s) => s.ok).length;
   return { secoes, feitas, total: secoes.length, pct: Math.round((feitas / secoes.length) * 100), produtos: produtos.length };
 }
+
+// ---------- Isa's own notes per artisan (the panel only; artisans never see this) ----------
+
+export const TIPOS_SITE = ['Site novo', 'Migração', 'Site no Canva'] as const;
+export const PAGAMENTO_STATUS = ['Pendente', 'Sinal pago', 'Pago'] as const;
+export const CATEGORIAS_ARQUIVO = { site: 'Arquivo do site', manual: 'Manual (PDF)', acesso: 'Acessos (PDF)', outro: 'Outro' } as const;
+export type CategoriaArquivo = keyof typeof CATEGORIAS_ARQUIVO;
+export const ARQUIVO_PAINEL_MB = 50;
+export const EXTENSOES_PAINEL = ['pdf', 'zip', 'rar', 'html', 'htm', 'png', 'jpg', 'jpeg', 'webp', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'json', 'mp4', 'mov'];
+
+export type ArquivoPainel = Arquivo & { categoria: CategoriaArquivo; enviadoEm: string };
+
+export type Ficha = {
+  tipo: string;
+  /** Dates as YYYY-MM-DD. */
+  previsao: string;
+  entregueEm: string;
+  valor: string;
+  pagamento: string;
+  enderecoSite: string;
+  renovacaoDominio: string;
+  notas: string;
+  arquivos: ArquivoPainel[];
+};
+
+export function fichaVazia(): Ficha {
+  return { tipo: '', previsao: '', entregueEm: '', valor: '', pagamento: 'Pendente', enderecoSite: '', renovacaoDominio: '', notas: '', arquivos: [] };
+}

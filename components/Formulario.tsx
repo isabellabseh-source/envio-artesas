@@ -18,6 +18,7 @@ import {
   progresso,
 } from '@/lib/types';
 import { reduzirImagem } from '@/lib/imagem';
+import { enviarComProgresso, mb } from '@/lib/envio';
 import { Coracao, Laco, LinhaCoracao } from './Enfeites';
 
 type Props = {
@@ -727,27 +728,6 @@ function EtapaDominio({ dados, atualizar }: { dados: Dados; atualizar: Atualizar
       <p className="discreto">Na compra chegam alguns e-mails: vamos cadastrar juntas a senha do domínio no dia agendado do seu site.</p>
     </div>
   );
-}
-
-const mb = (bytes: number) =>
-  bytes < 1024 * 1024
-    ? `${Math.max(1, Math.round(bytes / 1024))} KB`
-    : `${(bytes / 1024 / 1024).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} MB`;
-
-/** Sends a file to the storage link with upload progress (videos can take a while on mobile data). */
-function enviarComProgresso(url: string, arquivo: File, aoProgredir: (pct: number) => void) {
-  return new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', url);
-    xhr.setRequestHeader('x-upsert', 'false');
-    xhr.upload.onprogress = (e) => e.lengthComputable && aoProgredir(Math.round((e.loaded / e.total) * 100));
-    xhr.onload = () => (xhr.status < 300 ? resolve() : reject(new Error(String(xhr.status))));
-    xhr.onerror = () => reject(new Error('rede'));
-    const corpo = new FormData();
-    corpo.append('cacheControl', '3600');
-    corpo.append('', arquivo);
-    xhr.send(corpo);
-  });
 }
 
 /** PDFs and videos: sent as they are, straight to storage, with a size limit instead of resizing. */
