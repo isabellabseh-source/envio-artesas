@@ -50,7 +50,8 @@ async function carregarFotos(fotos: Foto[], lado: number) {
       }
     }
   };
-  await Promise.all(Array.from({ length: 6 }, trabalhar));
+  // Many at once: the hosting platform stops functions after 10 seconds.
+  await Promise.all(Array.from({ length: 16 }, trabalhar));
   return mapa;
 }
 

@@ -8,6 +8,7 @@ import { linkArtesa, linkWhatsApp } from '@/lib/links';
 import { enderecoBase } from '@/lib/endereco';
 import AcoesArtesa from '@/components/admin/AcoesArtesa';
 import EditarCadastro from '@/components/admin/EditarCadastro';
+import BaixarZip from '@/components/admin/BaixarZip';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,9 +52,7 @@ export default async function FichaArtesa({ params }: { params: Promise<{ id: st
           <a className="botao" href={`/api/admin/artesas/${a.id}/pdf`}>
             Baixar PDF
           </a>
-          <a className="botao secundario" href={`/api/admin/artesas/${a.id}/zip`}>
-            Baixar fotos (.zip)
-          </a>
+          <BaixarZip id={a.id} />
         </div>
       </header>
 

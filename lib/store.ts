@@ -227,3 +227,14 @@ export async function excluirArtesa(id: string): Promise<boolean> {
   if (error) throw error;
   return !!data?.length;
 }
+
+/** Temporary (1 hour) links for many stored files in one request, or null when running locally. */
+export async function linksTemporarios(caminhos: string[]): Promise<Record<string, string> | null> {
+  const sb = supabase();
+  if (!sb) return null;
+  const validos = caminhos.filter(caminhoValido);
+  if (!validos.length) return {};
+  const { data, error } = await sb.storage.from(BUCKET).createSignedUrls(validos, 3600);
+  if (error) throw error;
+  return Object.fromEntries((data ?? []).flatMap((d) => (d.signedUrl && d.path ? [[d.path, d.signedUrl]] : [])));
+}
