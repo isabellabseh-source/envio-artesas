@@ -1,3 +1,16 @@
+# O sistema agora roda na Hostinger, em https://painel.artesaonline.com.br
+# A Netlify fica só para os links antigos continuarem funcionando: qualquer endereço do site antigo
+# (o link de cada artesã em /a/..., o painel /admin, etc.) é levado para o mesmo caminho no endereço novo.
+
 [build]
-  command = "npm run build"
-  publish = ".next"
+  command = "echo 'Somente redirecionamento'"
+  publish = "desvio"
+
+[build.environment]
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+[[redirects]]
+  from = "/*"
+  to = "https://painel.artesaonline.com.br/:splat"
+  status = 301
+  force = true

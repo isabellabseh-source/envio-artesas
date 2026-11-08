@@ -1,15 +1,17 @@
 import { NextResponse } from 'next/server';
-import { atualizarArtesa, buscarPorToken } from '@/lib/store';
+import { envioPorToken, envioComCliente } from '@/lib/store';
+import { finalizarConteudo } from '@/lib/negocio';
 import { avisarTermino } from '@/lib/aviso';
 import { enderecoBase } from '@/lib/endereco';
 
 type Ctx = { params: Promise<{ token: string }> };
 
 export async function POST(_req: Request, { params }: Ctx) {
-  const artesa = await buscarPorToken((await params).token);
-  if (!artesa) return NextResponse.json({ erro: 'Link inválido' }, { status: 404 });
-  if (artesa.status === 'terminou') return NextResponse.json({ ok: true });
-  const atualizada = await atualizarArtesa(artesa.id, { status: 'terminou', terminou_em: new Date().toISOString() });
-  if (atualizada) await avisarTermino(atualizada, await enderecoBase());
+  const envio = await envioPorToken((await params).token);
+  if (!envio) return NextResponse.json({ erro: 'Link inválido' }, { status: 404 });
+  if (envio.status === 'terminou') return NextResponse.json({ ok: true });
+  await finalizarConteudo(envio);
+  const atual = await envioComCliente(envio.id);
+  if (atual) await avisarTermino(atual.artesa, envio.pedidoId, await enderecoBase());
   return NextResponse.json({ ok: true });
 }

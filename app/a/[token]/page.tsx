@@ -1,20 +1,23 @@
 import { notFound } from 'next/navigation';
-import { buscarPorToken } from '@/lib/store';
+import { buscar } from '@/lib/db';
+import { envioPorToken } from '@/lib/store';
+import { Cliente } from '@/lib/modelo';
 import Formulario from '@/components/Formulario';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PaginaArtesa({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const artesa = await buscarPorToken(token);
-  if (!artesa) notFound();
+  const envio = await envioPorToken(token);
+  if (!envio) notFound();
+  const cliente = await buscar<Cliente>('clientes', envio.clienteId);
   return (
     <Formulario
       token={token}
-      nome={artesa.nome}
-      atelie={artesa.atelie}
-      dadosIniciais={artesa.dados}
-      finalizado={artesa.status !== 'nao_comecou' && artesa.status !== 'enviando'}
+      nome={cliente?.nome ?? ''}
+      atelie={cliente?.atelie ?? ''}
+      dadosIniciais={envio.dados}
+      finalizado={envio.status === 'terminou'}
     />
   );
 }

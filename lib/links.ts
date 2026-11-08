@@ -1,4 +1,4 @@
-import { Artesa } from './types';
+import type { Artesa } from './types';
 
 export function linkArtesa(base: string, token: string) {
   return `${base}/a/${token}`;

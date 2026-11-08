@@ -4,10 +4,10 @@ import { Artesa } from './types';
 const esc = (t: string) => t.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 /** Emails Isabella when an artisan finishes. Does nothing unless RESEND_API_KEY and AVISO_EMAIL are set. */
-export async function avisarTermino(artesa: Artesa, base: string) {
+export async function avisarTermino(artesa: Artesa, pedidoId: string, base: string) {
   const { RESEND_API_KEY, AVISO_EMAIL } = process.env;
   if (!RESEND_API_KEY || !AVISO_EMAIL) return;
-  const link = `${base}/admin/${artesa.id}`;
+  const link = `${base}/admin/pedidos/${pedidoId}?aba=conteudo`;
   try {
     await fetch('https://api.resend.com/emails', {
       method: 'POST',

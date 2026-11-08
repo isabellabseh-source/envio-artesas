@@ -1,5 +1,5 @@
 import 'server-only';
-import { lerFoto, linkTemporario } from './store';
+import { lerArquivo } from './arquivos';
 
 const TIPOS: Record<string, string> = {
   pdf: 'application/pdf',
@@ -8,15 +8,28 @@ const TIPOS: Record<string, string> = {
   mov: 'video/quicktime',
   webm: 'video/webm',
   '3gp': 'video/3gpp',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+  zip: 'application/zip',
+  html: 'text/html; charset=utf-8',
+  txt: 'text/plain; charset=utf-8',
 };
 
-/** Opens a PDF or video: a redirect to a temporary storage link, or the file itself when running locally. */
+const cabecalhoNome = (nome: string) =>
+  `attachment; filename="${nome.normalize('NFD').replace(/[^\x20-\x7e]/g, '').replace(/"/g, '')}"; filename*=UTF-8''${encodeURIComponent(nome)}`;
+
+/** Opens a stored file; with a name it downloads under that name. */
 export async function respostaArquivo(caminho: string, nomeDownload?: string) {
-  const link = await linkTemporario(caminho, nomeDownload);
-  if (link) return Response.redirect(link, 303);
-  const conteudo = await lerFoto(caminho);
+  const conteudo = await lerArquivo(caminho);
   if (!conteudo) return new Response('Não encontrado', { status: 404 });
-  return new Response(new Uint8Array(conteudo), {
-    headers: { 'Content-Type': TIPOS[caminho.split('.').pop() ?? ''] ?? 'application/octet-stream' },
-  });
+  const ext = caminho.split('.').pop() ?? '';
+  const headers: Record<string, string> = {
+    'Content-Type': nomeDownload ? 'application/octet-stream' : (TIPOS[ext] ?? 'application/octet-stream'),
+    'Cache-Control': 'private, max-age=3600',
+    'X-Content-Type-Options': 'nosniff',
+  };
+  if (nomeDownload) headers['Content-Disposition'] = cabecalhoNome(nomeDownload);
+  return new Response(new Uint8Array(conteudo), { headers });
 }
