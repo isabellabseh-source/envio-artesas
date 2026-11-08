@@ -1,240 +1,60 @@
 import 'server-only';
-import { randomBytes, randomUUID } from 'crypto';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Artesa, Dados, Status, dadosVazios } from './types';
+import { randomUUID } from 'crypto';
+import { buscar } from './db';
+import { caminhoSeguro, lerArquivo, salvarArquivo } from './arquivos';
+import { buscarEnvioPorToken } from './negocio';
+import { Cliente, Envio } from './modelo';
+import { Artesa, Status } from './types';
 
 /**
- * Data access. Uses Supabase when SUPABASE_URL is set; otherwise keeps everything
- * in the local .data folder so the system can be tried without any account.
+ * The artisan-facing side of the system: what her link opens and the files she sends.
+ * `Artesa` is the shape the form, the content page and the PDF were built on; it is now assembled
+ * from the order's content (Envio) and the client record.
  */
 
-const BUCKET = 'fotos';
-
-export function novoToken() {
-  return randomBytes(18).toString('base64url');
-}
-
-let client: SupabaseClient | null = null;
-function supabase() {
-  if (!process.env.SUPABASE_URL) return null;
-  if (!client) {
-    client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
-      auth: { persistSession: false },
-    });
-  }
-  return client;
-}
-
-// ---------- local backend ----------
-
-const DATA_DIR = path.join(process.cwd(), '.data');
-const DB_FILE = path.join(DATA_DIR, 'artesas.json');
-
-async function lerLocal(): Promise<Artesa[]> {
-  try {
-    return JSON.parse(await fs.readFile(DB_FILE, 'utf8'));
-  } catch {
-    return [];
-  }
-}
-
-async function gravarLocal(lista: Artesa[]) {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(DB_FILE, JSON.stringify(lista, null, 2));
-}
-
-async function atualizarLocal(id: string, mudar: (a: Artesa) => void) {
-  const lista = await lerLocal();
-  const a = lista.find((x) => x.id === id);
-  if (!a) return null;
-  mudar(a);
-  await gravarLocal(lista);
-  return a;
-}
-
-// ---------- public API ----------
-
-export async function listarArtesas(): Promise<Artesa[]> {
-  const sb = supabase();
-  if (!sb) return (await lerLocal()).sort((a, b) => b.criado_em.localeCompare(a.criado_em));
-  const { data, error } = await sb.from('artesas').select('*').order('criado_em', { ascending: false });
-  if (error) throw error;
-  return data as Artesa[];
-}
-
-export async function buscarArtesa(id: string): Promise<Artesa | null> {
-  const sb = supabase();
-  if (!sb) return (await lerLocal()).find((a) => a.id === id) ?? null;
-  const { data, error } = await sb.from('artesas').select('*').eq('id', id).maybeSingle();
-  if (error) throw error;
-  return data as Artesa | null;
-}
-
-export async function buscarPorToken(token: string): Promise<Artesa | null> {
-  if (!token || token.length < 16) return null;
-  const sb = supabase();
-  if (!sb) return (await lerLocal()).find((a) => a.token === token) ?? null;
-  const { data, error } = await sb.from('artesas').select('*').eq('token', token).maybeSingle();
-  if (error) throw error;
-  return data as Artesa | null;
-}
-
-export async function criarArtesa(input: { nome: string; atelie: string; whatsapp: string }): Promise<Artesa> {
-  const artesa: Artesa = {
-    id: randomUUID(),
-    nome: input.nome.trim(),
-    atelie: input.atelie.trim(),
-    whatsapp: input.whatsapp.replace(/\D/g, ''),
-    token: novoToken(),
-    status: 'nao_comecou',
-    dados: dadosVazios(input.atelie.trim()),
-    criado_em: new Date().toISOString(),
-    terminou_em: null,
+export function comoArtesa(e: Envio, c: Pick<Cliente, 'nome' | 'atelie' | 'whatsapp'> | null): Artesa {
+  return {
+    id: e.id,
+    nome: c?.nome ?? '',
+    atelie: c?.atelie ?? '',
+    whatsapp: c?.whatsapp ?? '',
+    token: e.token,
+    status: e.status as Status,
+    dados: e.dados,
+    criado_em: e.criadoEm,
+    terminou_em: e.terminouEm,
   };
-  const sb = supabase();
-  if (!sb) {
-    const lista = await lerLocal();
-    lista.push(artesa);
-    await gravarLocal(lista);
-    return artesa;
-  }
-  const { error } = await sb.from('artesas').insert(artesa);
-  if (error) throw error;
-  return artesa;
 }
 
-type Mudancas = Partial<Pick<Artesa, 'dados' | 'status' | 'token' | 'terminou_em' | 'nome' | 'atelie' | 'whatsapp'>>;
-
-export async function atualizarArtesa(id: string, mudancas: Mudancas): Promise<Artesa | null> {
-  const sb = supabase();
-  if (!sb) return atualizarLocal(id, (a) => Object.assign(a, mudancas));
-  const { data, error } = await sb.from('artesas').update(mudancas).eq('id', id).select('*').maybeSingle();
-  if (error) throw error;
-  return data as Artesa | null;
+export async function envioPorToken(token: string) {
+  const e = await buscarEnvioPorToken(token);
+  if (!e || e.excluidoEm) return null;
+  return e;
 }
 
-export async function salvarDados(artesa: Artesa, dados: Dados) {
-  const status: Status = artesa.status === 'nao_comecou' ? 'enviando' : artesa.status;
-  return atualizarArtesa(artesa.id, { dados, status });
+export async function envioComCliente(id: string) {
+  const e = await buscar<Envio>('envios', id);
+  if (!e) return null;
+  const c = await buscar<Cliente>('clientes', e.clienteId);
+  return { envio: e, cliente: c, artesa: comoArtesa(e, c) };
 }
 
-// ---------- photos ----------
+// ---------- files ----------
 
-export async function salvarFoto(artesaId: string, conteudo: Buffer, tipo: string): Promise<string> {
-  const ext = tipo === 'image/png' ? 'png' : 'jpg';
-  const caminho = `${artesaId}/${randomUUID()}.${ext}`;
-  const sb = supabase();
-  if (!sb) {
-    const destino = path.join(DATA_DIR, 'fotos', caminho);
-    await fs.mkdir(path.dirname(destino), { recursive: true });
-    await fs.writeFile(destino, conteudo);
-    return caminho;
-  }
-  const { error } = await sb.storage.from(BUCKET).upload(caminho, conteudo, { contentType: tipo });
-  if (error) throw error;
+export async function salvarFoto(envioId: string, conteudo: Buffer, tipo: string): Promise<string> {
+  const caminho = `${envioId}/${randomUUID()}.${tipo === 'image/png' ? 'png' : 'jpg'}`;
+  await salvarArquivo(caminho, conteudo);
   return caminho;
 }
 
 /** Only accepts paths created by salvarFoto or novoArquivo ("<uuid>/<uuid>.<ext>"). */
 export function caminhoValido(caminho: string) {
-  return /^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|png|pdf|mp4|mov|m4v|webm|3gp)$/.test(caminho);
+  return /^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|png|pdf|mp4|mov|m4v|webm|3gp)$/.test(caminho) && caminhoSeguro(caminho);
 }
 
-/**
- * Prepares a PDF or video upload. On Supabase the browser sends the file straight to storage with the
- * returned link, because hosting platforms cap request size (Netlify: 6 MB) and videos are bigger.
- * Locally there is no link and the file goes through PUT /api/envio/<token>/arquivo.
- */
-export async function novoArquivo(artesaId: string, ext: string): Promise<{ path: string; url: string | null }> {
-  const caminho = `${artesaId}/${randomUUID()}.${ext}`;
-  const sb = supabase();
-  if (!sb) return { path: caminho, url: null };
-  const { data, error } = await sb.storage.from(BUCKET).createSignedUploadUrl(caminho);
-  if (error || !data) throw error ?? new Error('Falha ao preparar o envio');
-  return { path: caminho, url: data.signedUrl };
+/** Prepares a PDF or video upload; the browser then sends the file to PUT /api/envio/<token>/arquivo. */
+export async function novoArquivo(envioId: string, ext: string): Promise<{ path: string; url: null }> {
+  return { path: `${envioId}/${randomUUID()}.${ext}`, url: null };
 }
 
-/** Local mode only: stores a PDF or video sent through the server. */
-export async function salvarArquivoLocal(caminho: string, conteudo: Buffer) {
-  const destino = path.join(DATA_DIR, 'fotos', caminho);
-  await fs.mkdir(path.dirname(destino), { recursive: true });
-  await fs.writeFile(destino, conteudo);
-}
-
-/** A temporary (1 hour) link to open a stored file, or null when running locally. */
-export async function linkTemporario(caminho: string, nomeDownload?: string): Promise<string | null> {
-  const sb = supabase();
-  if (!sb || !caminhoValido(caminho)) return null;
-  const { data, error } = await sb.storage
-    .from(BUCKET)
-    .createSignedUrl(caminho, 3600, nomeDownload ? { download: nomeDownload } : undefined);
-  if (error || !data) return null;
-  return data.signedUrl;
-}
-
-export async function lerFoto(caminho: string): Promise<Buffer | null> {
-  if (!caminhoValido(caminho)) return null;
-  const sb = supabase();
-  if (!sb) {
-    try {
-      return await fs.readFile(path.join(DATA_DIR, 'fotos', caminho));
-    } catch {
-      return null;
-    }
-  }
-  const { data, error } = await sb.storage.from(BUCKET).download(caminho);
-  if (error || !data) return null;
-  return Buffer.from(await data.arrayBuffer());
-}
-
-/**
- * On Supabase, stores a generated file and returns a temporary download link (1 hour).
- * Hosting platforms cap response size (Vercel: 4.5 MB), so big zips are served from storage.
- * Returns null when running locally, where the file can be sent directly.
- */
-export async function linkParaBaixar(caminho: string, conteudo: Uint8Array, tipo: string, nome: string): Promise<string | null> {
-  const sb = supabase();
-  if (!sb) return null;
-  const { error } = await sb.storage.from(BUCKET).upload(`downloads/${caminho}`, conteudo, { contentType: tipo, upsert: true });
-  if (error) throw error;
-  const { data, error: e2 } = await sb.storage.from(BUCKET).createSignedUrl(`downloads/${caminho}`, 3600, { download: nome });
-  if (e2 || !data) throw e2 ?? new Error('Falha ao gerar link');
-  return data.signedUrl;
-}
-
-/** Removes an artisan and every photo or generated file stored for her. */
-export async function excluirArtesa(id: string): Promise<boolean> {
-  const sb = supabase();
-  if (!sb) {
-    const lista = await lerLocal();
-    const resto = lista.filter((a) => a.id !== id);
-    if (resto.length === lista.length) return false;
-    await gravarLocal(resto);
-    await fs.rm(path.join(DATA_DIR, 'fotos', id), { recursive: true, force: true });
-    return true;
-  }
-  for (;;) {
-    const { data } = await sb.storage.from(BUCKET).list(id, { limit: 1000 });
-    const arquivos = (data ?? []).filter((f) => f.id).map((f) => `${id}/${f.name}`);
-    if (!arquivos.length) break;
-    const { error } = await sb.storage.from(BUCKET).remove(arquivos);
-    if (error) throw error;
-  }
-  await sb.storage.from(BUCKET).remove([`downloads/${id}.pdf`, `downloads/${id}.zip`]);
-  const { data, error } = await sb.from('artesas').delete().eq('id', id).select('id');
-  if (error) throw error;
-  return !!data?.length;
-}
-
-/** Temporary (1 hour) links for many stored files in one request, or null when running locally. */
-export async function linksTemporarios(caminhos: string[]): Promise<Record<string, string> | null> {
-  const sb = supabase();
-  if (!sb) return null;
-  const validos = caminhos.filter(caminhoValido);
-  if (!validos.length) return {};
-  const { data, error } = await sb.storage.from(BUCKET).createSignedUrls(validos, 3600);
-  if (error) throw error;
-  return Object.fromEntries((data ?? []).flatMap((d) => (d.signedUrl && d.path ? [[d.path, d.signedUrl]] : [])));
-}
+export const lerFoto = lerArquivo;

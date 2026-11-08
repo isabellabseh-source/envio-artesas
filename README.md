@@ -1,53 +1,86 @@
-# Envio de conteúdo das artesãs
+# Painel Isa Barros
 
-Sistema para cada artesã enviar o conteúdo do site catálogo (fotos, produtos, valores, categorias,
-pagamento, envio, depoimentos, sobre nós, dados do domínio), seguindo o *Guia Site Catálogo*.
+Sistema de gestão do ateliê de sites: artesãs, pedidos, agenda, financeiro e o envio de conteúdo
+pelas artesãs, tudo num lugar só.
 
-- **Artesã:** recebe um link pessoal pelo WhatsApp, sem cadastro nem senha. Preenche em etapas, no
-  celular; tudo salva sozinho. No fim, aperta **“Terminei”**.
-- **Painel (`/admin`):** lista de artesãs com o progresso, cadastro, botão para mandar o link no
-  WhatsApp, ficha completa de cada uma, **PDF** com tudo e **.zip** com as fotos originais organizadas
-  por categoria.
+- **Painel (`/admin`)**: Dashboard com indicadores e alertas, Artesãs (cadastro e histórico), Pedidos,
+  Agenda (vagas por mês), Envio de conteúdo, Financeiro e Configurações. Exporta CSV, baixa backup,
+  tem lixeira de 30 dias.
+- **Artesã (`/a/<link>`)**: recebe um link por pedido pelo WhatsApp, sem cadastro nem senha. Preenche
+  em etapas, no celular; tudo salva sozinho. No fim, aperta **“Terminei”**. O pedido muda sozinho para
+  “Enviando conteúdo” e “Conteúdo enviado” (só se ainda estiver numa dessas etapas).
+- **PDF** com todo o conteúdo e **.zip** com as fotos originais, como no sistema antigo.
 
-## Testar no computador (sem nenhuma conta)
+## Testar no computador
 
 Precisa do [Node.js](https://nodejs.org) 20 ou mais novo.
 
 ```bash
 npm install
-cp .env.example .env.local   # e troque a senha
+cp .env.example .env.local   # preencha ADMIN_EMAIL, ADMIN_PASSWORD e SESSION_SECRET
 npm run dev
 ```
 
-Abra http://localhost:3000/admin. Sem Supabase configurado, os dados e fotos ficam na pasta `.data`.
+Abra http://localhost:3000/admin. Sem MySQL configurado, os dados e fotos ficam na pasta `.data`.
 
-## Colocar no ar
+## Colocar no ar na Hostinger (plano Web Hosting com Node.js)
 
-1. **Supabase** (grátis): crie um projeto em https://supabase.com. Em *SQL Editor*, cole e rode o
-   arquivo [`supabase/schema.sql`](supabase/schema.sql). Em *Project Settings → API*, copie a
-   *Project URL* e a chave *service_role*.
-2. **Netlify** (grátis, permite uso comercial): em https://app.netlify.com entre com o GitHub,
-   clique em *Add new site → Import an existing project*, escolha este repositório e, antes de publicar,
-   abra *Environment variables* e preencha:
+1. **Banco de dados**: no hPanel, abra *Bancos de dados → Gerenciamento* e crie um banco MySQL.
+   Anote o nome do banco, o usuário e a senha. (A tabela é criada sozinha no primeiro acesso.)
+2. **App Node.js**: em *Sites → Adicionar site → App web em Node.js*, importe do GitHub este
+   repositório. Use o subdomínio `painel.artesaonline.com.br`.
+   - Comando de build: `npm run build` · Comando de início: `npm start` · Node.js 20 ou 22
+3. **Variáveis de ambiente** (na tela do app, antes de publicar):
 
    | Variável | Valor |
    | --- | --- |
-   | `ADMIN_PASSWORD` | a senha do seu painel |
-   | `SUPABASE_URL` | Project URL do Supabase |
-   | `SUPABASE_SERVICE_ROLE_KEY` | chave secreta (secret / service_role) do Supabase — nunca compartilhe |
-   | `RESEND_API_KEY`, `AVISO_EMAIL` | opcional: aviso por e-mail quando alguém termina |
-   | `NEXT_PUBLIC_SITE_URL` | opcional: endereço fixo do sistema (sem isso, usa o endereço em que o painel foi aberto) |
-   | `SESSION_SECRET` | opcional: segredo do login do painel (sem isso, usa a chave secreta do Supabase) |
+   | `ADMIN_EMAIL` | seu e-mail de login |
+   | `ADMIN_PASSWORD` | sua senha (no primeiro acesso, ela cria a sua conta) |
+   | `SESSION_SECRET` | um texto longo e aleatório, com 16 caracteres ou mais |
+   | `NEXT_PUBLIC_SITE_URL` | `https://painel.artesaonline.com.br` |
+   | `MYSQL_HOST` | `localhost` (ou o host mostrado no hPanel) |
+   | `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD` | os dados do passo 1 |
+   | `LIMITE_ESPACO_GB` | opcional: o espaço do plano, para a barra de uso (padrão 50) |
+   | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | só para trazer os dados antigos (veja abaixo) |
+   | `RESEND_API_KEY`, `AVISO_EMAIL` | opcional: aviso por e-mail quando uma artesã termina |
 
-3. Clique em *Deploy*. Para usar um endereço próprio, adicione o domínio em *Domain management*.
+   As fotos ficam em `~/dados-painel-isa/arquivos`, **fora** da pasta do app, para não sumirem quando
+   o app é publicado de novo. Para outro lugar, defina `PASTA_ARQUIVOS`.
+4. Publique e entre em `https://painel.artesaonline.com.br/admin` com o e-mail e a senha.
 
-O plano grátis da Netlify inclui 100 GB de tráfego e 125 mil chamadas de funções por mês. Se passar
-disso, o site fica suspenso até o mês seguinte, a não ser que você mude para um plano pago.
+**Esqueceu a senha?** Troque `ADMIN_PASSWORD` nas variáveis da Hostinger, reinicie o app e entre com
+a nova. Ela substitui a antiga.
+
+## Trazer os dados do sistema antigo (Supabase)
+
+1. Com `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` (as mesmas da Netlify) nas variáveis da Hostinger,
+   abra **Configurações → Trazer do sistema antigo** e clique no botão.
+2. Cada artesã antiga vira uma artesã + um pedido + o conteúdo, **com o mesmo link**. As fotos, vídeos
+   e PDFs são copiados para a Hostinger. A agenda antiga (valor, previsão, notas, arquivos entregues)
+   entra no pedido. Itens da agenda “fora do sistema” viram pedidos sem link (dá para criar o link
+   depois, na aba Conteúdo).
+3. O sistema antigo **não é alterado**. Pode clicar de novo quantas vezes quiser: o que já veio é
+   pulado (útil para pegar o que as artesãs enviaram enquanto você fazia a mudança).
+4. Confira os pagamentos: a agenda antiga só dizia “Sinal pago” ou “Pago”. “Pago” vira um pagamento
+   do valor total (sem forma de pagamento); “Sinal pago” vira um lembrete nas observações financeiras.
+
+## A virada (links antigos continuam funcionando)
+
+Quando tudo estiver conferido na Hostinger:
+
+1. Clique de novo em **Trazer do sistema antigo**, para pegar os últimos envios.
+2. Junte este ramo ao `main` no GitHub. A Netlify publica o `main` sozinha e, com o `netlify.toml` novo,
+   passa a só redirecionar: qualquer endereço antigo (`/a/...` de cada artesã, `/admin`) vai para o
+   mesmo caminho em `painel.artesaonline.com.br`.
+3. Depois de alguns meses, se quiser, pode desativar o projeto no Supabase.
 
 ## Como funciona por dentro
 
-- Next.js (App Router). Todo acesso a dados passa pelo servidor (`lib/store.ts`), com a chave secreta do
-  Supabase; a artesã só acessa o próprio envio pelo token do link.
-- Fotos são reduzidas no celular antes do envio (máx. 1600 px) e guardadas no bucket privado `fotos`.
-- PDF gerado com `@react-pdf/renderer` (fotos reduzidas para ficar leve); fotos originais no .zip.
-- Endereço preenchido pelo CEP via [ViaCEP](https://viacep.com.br).
+- Next.js (App Router), rodando como app Node.js. Todo acesso a dados passa pelo servidor.
+- Dados numa tabela MySQL `registros` (documentos JSON por coleção: clientes, pedidos, envios,
+  config, usuarios, historico), em `lib/db.ts`. Regras do negócio em `lib/negocio.ts`; cálculos e
+  listas em `lib/modelo.ts`. Valores guardados em centavos.
+- Arquivos no disco (`lib/arquivos.ts`); a artesã só acessa os arquivos do próprio link.
+- Login com e-mail e senha (hash scrypt), sessão assinada; trocar a senha desconecta os outros aparelhos.
+- Fotos reduzidas no celular antes do envio (máx. 1600 px); vídeos até 30 MB.
+- PDF com `@react-pdf/renderer`; .zip montado no navegador. CEP pelo [ViaCEP](https://viacep.com.br).

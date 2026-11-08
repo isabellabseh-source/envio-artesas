@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 type Lista = { nomeZip: string; arquivos: { nome: string; url: string }[] };
 
-/** Builds the photos .zip in the browser, fetching each photo straight from storage. */
+/** Builds the photos .zip in the browser, fetching each photo from the server. */
 export default function BaixarZip({ id }: { id: string }) {
   const [estado, setEstado] = useState<string | null>(null);
   const [erro, setErro] = useState('');
@@ -13,7 +13,7 @@ export default function BaixarZip({ id }: { id: string }) {
     setErro('');
     setEstado('Preparando…');
     try {
-      const r = await fetch(`/api/admin/artesas/${id}/zip-lista`);
+      const r = await fetch(`/api/admin/envios/${id}/zip-lista`);
       if (!r.ok) throw new Error();
       const { nomeZip, arquivos } = (await r.json()) as Lista;
       if (!arquivos.length) {
