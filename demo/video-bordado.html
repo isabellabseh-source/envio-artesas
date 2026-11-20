@@ -131,6 +131,11 @@ b{color:#c9566e}
 .passo.azul .num{background:linear-gradient(#cfe6f6,#a9cfea);color:#3d6f91;box-shadow:0 6px 0 #8db8d8}
 .passo h2{font-size:50px}
 .passo p{font-size:38px;line-height:1.3;margin-top:4px}
+/* prints reais do site */
+.print-site{width:100%;display:block}
+.print .ilu img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.aparece{animation-name:aparece;animation-duration:.25s}
+@keyframes aparece{from{opacity:0}to{opacity:1}}
 /* final */
 .blob{position:absolute;left:50%;top:330px;width:760px;height:700px;margin-left:-380px;background:#fde3e8;border-radius:46% 54% 48% 52% / 55% 48% 52% 45%}
 .isa{position:absolute;left:50%;top:300px;width:840px;margin-left:-420px}
@@ -187,12 +192,12 @@ b{color:#c9566e}
 <section class="cena" data-in="5.5" data-out="15">
   <div class="centro" style="top:250px"><h2 class="a sobe" style="--d:5.7s;font-size:74px">Hoje é assim, né?</h2></div>
   <div class="balao a dir" style="--d:6.3s;top:420px">Oi! Quais temas você tem? 😊</div>
-  <div class="print" style="--d:7.2s;--r:-8deg;left:100px;top:620px"><div class="ilu" style="background:#fde3e8"><svg width="170" height="170"><use href="#t-urso"/></svg></div><div class="t">print_1.jpg</div></div>
-  <div class="print" style="--d:7.5s;--r:6deg;left:410px;top:600px"><div class="ilu" style="background:#e6f2fa"><svg width="170" height="170"><use href="#t-baleia"/></svg></div><div class="t">print_2.jpg</div></div>
-  <div class="print" style="--d:7.8s;--r:-3deg;left:720px;top:640px;width:230px"><div class="ilu" style="background:#fff1e6"><svg width="160" height="160"><use href="#t-lua"/></svg></div><div class="t">print_3.jpg</div></div>
-  <div class="print" style="--d:8.1s;--r:10deg;left:160px;top:870px"><div class="ilu" style="background:#e9f5e9"><svg width="170" height="170"><use href="#t-dino"/></svg></div><div class="t">print_4.jpg</div></div>
-  <div class="print" style="--d:8.4s;--r:-6deg;left:470px;top:900px"><div class="ilu" style="background:#fde3e8"><svg width="170" height="170"><use href="#t-coroa"/></svg></div><div class="t">print_5.jpg</div></div>
-  <div class="print" style="--d:8.7s;--r:4deg;left:740px;top:880px;width:230px"><div class="ilu" style="background:#e6f2fa"><svg width="160" height="160"><use href="#t-nuvem"/></svg></div><div class="t">print_37.jpg</div></div>
+  <div class="print" style="--d:7.2s;--r:-8deg;left:100px;top:620px"><div class="ilu"><img src="video-assets/t1.jpg"></div><div class="t">print_1.jpg</div></div>
+  <div class="print" style="--d:7.5s;--r:6deg;left:410px;top:600px"><div class="ilu"><img src="video-assets/t2.jpg"></div><div class="t">print_2.jpg</div></div>
+  <div class="print" style="--d:7.8s;--r:-3deg;left:720px;top:640px;width:230px"><div class="ilu"><img src="video-assets/t3.jpg"></div><div class="t">print_3.jpg</div></div>
+  <div class="print" style="--d:8.1s;--r:10deg;left:160px;top:870px"><div class="ilu"><img src="video-assets/t4.jpg"></div><div class="t">print_4.jpg</div></div>
+  <div class="print" style="--d:8.4s;--r:-6deg;left:470px;top:900px"><div class="ilu"><img src="video-assets/t5.jpg"></div><div class="t">print_5.jpg</div></div>
+  <div class="print" style="--d:8.7s;--r:4deg;left:740px;top:880px;width:230px"><div class="ilu"><img src="video-assets/t6.jpg"></div><div class="t">print_37.jpg</div></div>
   <div class="balao a dir" style="--d:9.6s;top:1270px">Me manda de novo o do ursinho? 🙈</div>
   <div class="centro a sobe" style="--d:11.4s;top:1430px"><span class="leg">Print, print, print…<br><b>e o pedido se perde na conversa.</b></span></div>
 </section>
@@ -207,31 +212,17 @@ b{color:#c9566e}
   <svg class="a pop" style="--d:18.2s;position:absolute;left:50%;top:1420px;margin-left:-75px" width="150" height="144"><use href="#cor" fill="url(#gr)"/></svg>
 </section>
 
-<!-- 4. produtos -->
+<!-- 4. produtos (prints reais de isabarrosatelie.com.br) -->
 <section class="cena" data-in="21.2" data-out="31">
   <div class="centro" style="top:240px"><h2 class="a sobe" style="--d:21.4s;font-size:72px">Seus produtos,<br>lindos e organizados</h2></div>
   <div class="celular a sobe" style="--d:21.8s">
     <div class="notch"></div>
-    <div class="tela">
-      <div class="rola" data-rolar="23.6 5 560">
-        <div class="barra"><div class="mini"><svg width="38" height="36"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="nome">Ateliê Fio de Mel</div><div class="sub">Bordados com amor</div></div><svg class="sacola" width="46" height="46"><use href="#sacola"/></svg></div>
-        <div class="chips"><span class="chip on">Todos</span><span class="chip">Kits bebê</span><span class="chip">Toalhas</span><span class="chip">Bolsas</span><span class="chip">Fraldas</span></div>
-        <div class="grade">
-          <div class="prod"><div class="foto" style="background:#fde3e8"><svg width="160" height="160"><use href="#p-toalha"/><use href="#t-urso" x="50" y="20" width="42" height="42"/></svg></div><div class="info"><div class="n">Kit Toalhas Bordadas</div><div class="p">R$ 149,90</div><div class="add">Adicionar</div></div></div>
-          <div class="prod"><div class="foto" style="background:#e6f2fa"><svg width="160" height="160"><use href="#p-fralda"/><use href="#t-baleia" x="45" y="45" width="70" height="70"/></svg></div><div class="info"><div class="n">Fralda Bordada</div><div class="p">R$ 29,90</div><div class="add">Adicionar</div></div></div>
-          <div class="prod"><div class="foto" style="background:#fff1e6"><svg width="160" height="160"><use href="#p-bolsa"/><use href="#t-coroa" x="55" y="68" width="50" height="50"/></svg></div><div class="info"><div class="n">Bolsa Maternidade</div><div class="p">R$ 289,00</div><div class="add">Adicionar</div></div></div>
-          <div class="prod"><div class="foto" style="background:#fde3e8"><svg width="160" height="160"><use href="#p-babador"/><use href="#t-coelho" x="52" y="70" width="56" height="56"/></svg></div><div class="info"><div class="n">Babador Bordado</div><div class="p">R$ 39,90</div><div class="add">Adicionar</div></div></div>
-          <div class="prod"><div class="foto" style="background:#e6f2fa"><svg width="160" height="160"><use href="#p-nec"/><use href="#t-lua" x="56" y="66" width="50" height="50"/></svg></div><div class="info"><div class="n">Nécessaire</div><div class="p">R$ 79,90</div><div class="add">Adicionar</div></div></div>
-          <div class="prod"><div class="foto" style="background:#fff1e6"><svg width="160" height="160"><use href="#p-manta"/><use href="#t-nuvem" x="50" y="34" width="60" height="60"/></svg></div><div class="info"><div class="n">Manta Bordada</div><div class="p">R$ 159,90</div><div class="add">Adicionar</div></div></div>
-          <div class="prod"><div class="foto" style="background:#e9f5e9"><svg width="160" height="160"><use href="#p-toalha"/><use href="#t-dino" x="50" y="20" width="42" height="42"/></svg></div><div class="info"><div class="n">Toalha de Banho</div><div class="p">R$ 99,90</div><div class="add">Adicionar</div></div></div>
-          <div class="prod"><div class="foto" style="background:#fde3e8"><svg width="160" height="160"><use href="#p-fralda"/><use href="#t-flor" x="45" y="45" width="70" height="70"/></svg></div><div class="info"><div class="n">Kit 3 Fraldas</div><div class="p">R$ 84,90</div><div class="add">Adicionar</div></div></div>
-        </div>
-      </div>
-    </div>
+    <div class="tela"><img class="rola print-site" data-rolar="23.4 3.2 1330" src="video-assets/catalogo.jpg"></div>
+    <div class="tela a entra" style="--d:27s"><img class="rola print-site" data-rolar="27.8 2.8 1700" src="video-assets/bolsas.jpg"></div>
   </div>
-  <div class="selo a pop" style="--d:24.4s;left:50px;top:820px">📸 Fotos e preços</div>
-  <div class="selo a pop" style="--d:26.4s;right:50px;top:1200px">🗂️ Por categoria</div>
-  <div class="selo a pop" style="--d:28.2s;left:60px;top:1500px">🛍️ Com carrinho</div>
+  <div class="selo a pop" style="--d:24.2s;right:50px;top:900px">🗂️ Por categoria</div>
+  <div class="selo a pop" style="--d:28.4s;left:50px;top:1200px">📸 Fotos e preços</div>
+  <div class="selo a pop" style="--d:29.4s;right:60px;top:1500px">🛍️ Com carrinho</div>
 </section>
 
 <!-- 5. catálogo de temas -->
@@ -243,78 +234,35 @@ b{color:#c9566e}
   </div>
   <div class="celular a sobe" style="--d:32.6s;top:660px;height:1000px">
     <div class="notch"></div>
-    <div class="tela">
-      <div class="barra"><div class="mini"><svg width="38" height="36"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="nome">Temas</div><div class="sub">Escolha o bordado da sua peça</div></div></div>
-      <div class="busca">🔎 <span data-digita="34.6 9" data-texto="ursinho"></span><span class="cursor"></span></div>
-      <div style="position:absolute;left:0;right:0;top:220px;bottom:0;overflow:hidden">
-        <div class="rola" data-rolar="38.4 1.8 0">
-          <div class="chips" style="padding-top:0"><span class="chip on">Bebê</span><span class="chip">Safári</span><span class="chip">Princesas</span><span class="chip">Fundo do mar</span><span class="chip">Nomes</span></div>
-          <div class="temas">
-            <div class="tema"><div class="a pop" style="--d:37.2s;position:absolute;inset:-4px;border:5px solid #c9566e;border-radius:22px"></div><div class="ilu" style="background:#fde3e8"><svg width="104" height="104"><use href="#t-urso"/></svg></div><div class="t">Ursinho Balão</div><div class="cod">cód. 0412</div><div class="marca a pop" style="--d:37.4s"><svg width="26" height="26"><use href="#ok"/></svg></div></div>
-            <div class="tema"><div class="ilu" style="background:#e6f2fa"><svg width="104" height="104"><use href="#t-nuvem"/></svg></div><div class="t">Chuva de Amor</div><div class="cod">cód. 0388</div></div>
-            <div class="tema"><div class="ilu" style="background:#fff1e6"><svg width="104" height="104"><use href="#t-arco"/></svg></div><div class="t">Arco-íris</div><div class="cod">cód. 1021</div></div>
-            <div class="tema"><div class="ilu" style="background:#fff1e6"><svg width="104" height="104"><use href="#t-lua"/></svg></div><div class="t">Lua e Estrelas</div><div class="cod">cód. 0733</div></div>
-            <div class="tema"><div class="ilu" style="background:#fde3e8"><svg width="104" height="104"><use href="#t-balao"/></svg></div><div class="t">Balão Aventura</div><div class="cod">cód. 0915</div></div>
-            <div class="tema"><div class="ilu" style="background:#fff1e6"><svg width="104" height="104"><use href="#t-coroa"/></svg></div><div class="t">Coroa Real</div><div class="cod">cód. 0157</div></div>
-            <div class="tema"><div class="ilu" style="background:#e6f2fa"><svg width="104" height="104"><use href="#t-baleia"/></svg></div><div class="t">Baleinha</div><div class="cod">cód. 0644</div></div>
-            <div class="tema"><div class="ilu" style="background:#fde3e8"><svg width="104" height="104"><use href="#t-borb"/></svg></div><div class="t">Borboleta</div><div class="cod">cód. 1187</div></div>
-            <div class="tema"><div class="ilu" style="background:#e9f5e9"><svg width="104" height="104"><use href="#t-dino"/></svg></div><div class="t">Dino Baby</div><div class="cod">cód. 0820</div></div>
-            <div class="tema"><div class="ilu" style="background:#fde3e8"><svg width="104" height="104"><use href="#t-coelho"/></svg></div><div class="t">Coelhinha</div><div class="cod">cód. 0299</div></div>
-            <div class="tema"><div class="ilu" style="background:#fff1e6"><svg width="104" height="104"><use href="#t-estrela"/></svg></div><div class="t">Estrelinha</div><div class="cod">cód. 1240</div></div>
-            <div class="tema"><div class="ilu" style="background:#e6f2fa"><svg width="104" height="104"><use href="#t-carro"/></svg></div><div class="t">Carrinho</div><div class="cod">cód. 0561</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="toque" style="--d:37.1s;left:100px;top:380px"></div>
-    </div>
+    <div class="tela"><img class="rola print-site" data-rolar="33.8 2.8 2100" src="video-assets/temas.jpg"></div>
+    <div class="tela a entra" style="--d:36.8s"><img class="rola print-site" data-rolar="37.4 .6 330" src="video-assets/grade.jpg"><div class="toque" style="--d:38.3s;left:459px;top:645px"></div></div>
+    <div class="tela a aparece" style="--d:38.8s"><img class="rola print-site" src="video-assets/modal.jpg"><div class="toque" style="--d:40.6s;left:284px;top:862px"></div></div>
   </div>
-  <div class="selo a pop" style="--d:39.2s;left:50%;top:1560px;transform:none;margin-left:-330px">✨ A cliente já escolhe o tema</div>
+  <div class="selo a pop" style="--d:39.4s;left:50%;top:1560px;transform:none;margin-left:-330px">✨ A cliente já escolhe o tema</div>
 </section>
 
 <!-- 6. a encomenda: produto -> carrinho -> WhatsApp -->
-<section class="cena" data-in="44" data-out="51.6"><div class="centro" style="top:240px"><h2 class="a sobe" style="--d:44.2s;font-size:70px">Ela monta a encomenda:<br>tema, nome e cor</h2></div></section>
-<section class="cena" data-in="51.6" data-out="56"><div class="centro" style="top:240px"><h2 class="a sobe" style="--d:51.7s;font-size:70px">Tudo vai pro carrinho…</h2></div></section>
+<section class="cena" data-in="44" data-out="51.6"><div class="centro" style="top:240px"><h2 class="a sobe" style="--d:44.2s;font-size:70px">O tema escolhido já vai<br>junto com o produto</h2></div></section>
+<section class="cena" data-in="51.6" data-out="56"><div class="centro" style="top:240px"><h2 class="a sobe" style="--d:51.7s;font-size:70px">No carrinho, ela coloca<br>o nome para bordar…</h2></div></section>
 <section class="cena" data-in="56" data-out="63.6"><div class="centro" style="top:200px"><h2 class="a sobe" style="--d:56.1s;font-size:64px">…e o pedido chega <b style="color:#25a35a">completo</b><br>no seu WhatsApp, com PDF!</h2></div></section>
 <section class="cena" data-in="44" data-out="63.6">
   <div class="celular a sobe" style="--d:44.5s">
     <div class="notch"></div>
-    <!-- produto -->
-    <div class="tela">
-      <div class="barra"><div class="mini"><svg width="38" height="36"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="nome">Ateliê Fio de Mel</div><div class="sub">Kits bebê</div></div><div class="sacola"><svg width="46" height="46"><use href="#sacola"/></svg><span class="qtd a pop" style="--d:50.6s">2</span></div></div>
-      <div style="height:300px;background:#fde3e8;display:flex;align-items:center;justify-content:center;position:relative">
-        <svg width="280" height="280" viewBox="0 0 140 140"><use href="#p-toalha"/><use href="#t-urso" class="a pop" style="--d:46.2s;transform-origin:70px 42px" x="38" y="18" width="38" height="40"/><text x="96" y="48" font-family="Dancing Script" font-size="13" fill="#c9566e" text-anchor="middle" data-digita="47.6 6" data-texto="Helena"></text></svg>
-      </div>
-      <div style="padding:16px 22px 0"><div style="font-weight:800;font-size:28px">Kit Toalhas Bordadas</div><div style="font-family:Fredoka;font-weight:600;color:#c9566e;font-size:32px">R$ 149,90</div></div>
-      <div class="campo"><div class="rot">Tema</div><div class="caixa"><span class="a some" style="--d:45.8s;position:absolute">Escolher no catálogo de temas</span><span class="a pop" style="--d:46.0s;display:flex;align-items:center;gap:12px"><svg width="44" height="44"><use href="#t-urso"/></svg>Ursinho Balão · cód. 0412</span></div></div>
-      <div class="campo"><div class="rot">Nome para bordar</div><div class="caixa"><span data-digita="47.6 6" data-texto="Helena"></span><span class="cursor"></span></div></div>
-      <div class="campo"><div class="rot">Cor da linha</div><div class="cores"><span style="background:#f6a3b2" class="on"></span><span style="background:#9cc8e6"></span><span style="background:#ffd9a0"></span><span style="background:#a8d8a8"></span><span style="background:#d8c3ea"></span></div></div>
-      <div class="grande aperta" style="--d:50.1s">Adicionar ao carrinho</div>
-      <div class="toque" style="--d:49.9s;left:284px;top:1000px"></div>
-      <div class="toque" style="--d:45.4s;left:284px;top:568px"></div>
-    </div>
-    <!-- carrinho -->
-    <div class="tela a entra" style="--d:51.6s">
-      <div class="barra"><div style="font-family:Fredoka;font-weight:600;color:#c9566e;font-size:38px">Meu carrinho</div></div>
-      <div class="linha"><div class="th" style="background:#fde3e8"><svg width="80" height="80" viewBox="0 0 140 140"><use href="#p-toalha"/><use href="#t-urso" x="50" y="20" width="42" height="42"/></svg></div><div><div class="n">Kit Toalhas Bordadas</div><div class="d">Tema: Ursinho Balão<br>Nome: Helena · Linha rosa</div></div><div class="p">R$ 149,90</div></div>
-      <div class="linha"><div class="th" style="background:#e6f2fa"><svg width="80" height="80" viewBox="0 0 140 140"><use href="#p-fralda"/><use href="#t-urso" x="45" y="45" width="50" height="50"/></svg></div><div><div class="n">Fralda Bordada</div><div class="d">Tema: Ursinho Balão<br>Nome: Helena · Linha rosa</div></div><div class="p">R$ 29,90</div></div>
-      <div class="total"><span>Total</span><span>R$ 179,80</span></div>
-      <div class="campo" style="margin-top:22px"><div class="rot">Seu nome</div><div class="caixa">Mariana Souza</div></div>
-      <div class="campo"><div class="rot">Entrega</div><div class="caixa">Correios · São Paulo/SP</div></div>
-      <div class="grande zap aperta" style="--d:55.3s;margin-top:30px">Finalizar pedido no WhatsApp</div>
-      <div class="toque" style="--d:55.1s;left:284px;top:840px"></div>
-    </div>
-    <!-- whatsapp -->
+    <div class="tela"><img class="rola print-site" style="top:-141px" src="video-assets/produto.jpg"><div class="toque" style="--d:47.4s;left:201px;top:634px"></div></div>
+    <div class="tela a aparece" style="--d:47.9s"><img class="rola print-site" style="top:-141px" src="video-assets/add.jpg"><div class="toque" style="--d:50.4s;left:313px;top:1024px"></div></div>
+    <div class="tela a entra" style="--d:51.6s"><img class="rola print-site" src="video-assets/carrinho.jpg"><div class="toque" style="--d:55.1s;left:284px;top:1024px"></div></div>
+    <!-- whatsapp: texto igual ao que o site gera -->
     <div class="tela a entra" style="--d:56s">
-      <div class="zap-topo"><span style="font-size:30px">‹</span><div class="av"><svg width="34" height="32"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="n">Ateliê Fio de Mel</div><div class="s">online</div></div></div>
+      <div class="zap-topo"><span style="font-size:30px">‹</span><div class="av"><svg width="34" height="32"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="n">Isa Barros Ateliê</div><div class="s">online</div></div></div>
       <div class="zap-fundo">
-        <div class="msg a sobe" style="--d:56.8s;top:24px">
-          Olá! Quero fazer um pedido 🧵<br><b style="color:#222">Pedido nº 0127</b><br><br>
-          <b style="color:#222">1x Kit Toalhas Bordadas</b> · R$ 149,90<br><small>Tema: Ursinho Balão (cód. 0412) · Nome: Helena · Linha: rosa</small><br><br>
-          <b style="color:#222">1x Fralda Bordada</b> · R$ 29,90<br><small>Tema: Ursinho Balão (cód. 0412) · Nome: Helena · Linha: rosa</small><br><br>
-          <b style="color:#222">Total: R$ 179,80</b><br>Cliente: Mariana Souza<br>Entrega: Correios · São Paulo/SP
+        <div class="msg a sobe" style="--d:56.8s;top:20px;font-size:17.5px;line-height:1.34">
+          <b style="color:#222">Novo pedido - Isa Barros Ateliê</b><br><br>
+          • 1x Bolsa Maternidade Estilo (Tamanho P) - R$ 440,00<br>&nbsp;&nbsp;&nbsp;Tema: Aviador nº 6 (programadora Bordados Michelin)<br>&nbsp;&nbsp;&nbsp;Nome para bordar: Helena<br><br>
+          Produtos: R$ 440,00<br>Entrega: frete a combinar<br><b style="color:#222">Total: R$ 440,00</b> + frete<br><br>
+          <b style="color:#222">Nome completo:</b> Mariana Souza<br><b style="color:#222">WhatsApp:</b> (47) 99999-0000<br><b style="color:#222">Previsão:</b> março de 2027<br><b style="color:#222">Entrega:</b> Correios ou transportadora<br><b style="color:#222">Pagamento:</b> Pix com entrada de 50%
           <span class="h">10:42 ✓✓</span>
         </div>
-        <div class="msg a sobe" style="--d:58.4s;top:470px;padding-bottom:30px"><div class="pdf"><div class="ic">PDF</div><div><div style="font-weight:800">Pedido-0127.pdf</div><div style="font-size:16px;color:#555">Pedido completo</div></div></div><span class="h">10:42 ✓✓</span></div>
+        <div class="msg a sobe" style="--d:58.4s;top:540px;padding-bottom:30px"><div class="pdf"><div class="ic">PDF</div><div><div style="font-weight:800">Pedido em PDF</div><div style="font-size:16px;color:#555">com fotos e valores</div></div></div><span class="h">10:42 ✓✓</span></div>
       </div>
     </div>
   </div>
@@ -326,22 +274,22 @@ b{color:#c9566e}
 <section class="cena" data-in="70.5" data-out="77.5"><div class="centro" style="top:240px"><h2 class="a sobe" style="--d:70.6s;font-size:72px">E edita o seu site<br>quando quiser</h2></div></section>
 <section class="cena" data-in="63.6" data-out="77.5">
   <div class="painel a sobe" style="--d:64.1s">
-    <div class="p-topo"><div class="mini" style="width:70px;height:70px;border-radius:50%;background:#fff;border:3px dashed #ee8a9c;display:flex;align-items:center;justify-content:center"><svg width="42" height="40"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="nome">Painel · Ateliê Fio de Mel</div><div style="font-size:22px;color:#93727b">Olá! Que bom te ver ♡</div></div></div>
+    <div class="p-topo"><div class="mini" style="width:70px;height:70px;border-radius:50%;background:#fff;border:3px dashed #ee8a9c;display:flex;align-items:center;justify-content:center"><svg width="42" height="40"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="nome">Painel · Isa Barros Ateliê</div><div style="font-size:22px;color:#93727b">Olá! Que bom te ver ♡</div></div></div>
     <div class="abas"><span class="aba on">Pedidos</span><span class="aba">Meu site</span><span class="aba">Temas</span></div>
-    <div class="ped dest a dir" style="--d:65.2s"><span class="num">#0127</span><div class="q">Mariana Souza <span class="novo">Novo</span><small>Kit Toalhas + Fralda · Ursinho Balão · Helena</small></div><span class="v">R$ 179,80</span></div>
-    <div class="ped a dir" style="--d:65.6s"><span class="num">#0126</span><div class="q">Juliana Lima<small>Bolsa Maternidade · Coroa Real · Theo</small></div><span class="v">R$ 289,00</span></div>
-    <div class="ped a dir" style="--d:66.0s"><span class="num">#0125</span><div class="q">Camila Rocha<small>Kit 3 Fraldas · Baleinha · Davi</small></div><span class="v">R$ 84,90</span></div>
-    <div class="ped a dir" style="--d:66.4s"><span class="num">#0124</span><div class="q">Patrícia Alves<small>Manta Bordada · Lua e Estrelas · Alice</small></div><span class="v">R$ 159,90</span></div>
-    <div class="ped a dir" style="--d:66.8s"><span class="num">#0123</span><div class="q">Fernanda Dias<small>Babador · Coelhinha · Laura</small></div><span class="v">R$ 39,90</span></div>
+    <div class="ped dest a dir" style="--d:65.2s"><span class="num">#0127</span><div class="q">Mariana Souza <span class="novo">Novo</span><small>Bolsa Maternidade Estilo · Aviador nº 6 · Helena</small></div><span class="v">R$ 440,00</span></div>
+    <div class="ped a dir" style="--d:65.6s"><span class="num">#0126</span><div class="q">Juliana Lima<small>Bolsa Maternidade Essencial · Ursos · Theo</small></div><span class="v">R$ 490,00</span></div>
+    <div class="ped a dir" style="--d:66.0s"><span class="num">#0125</span><div class="q">Camila Rocha<small>Mochila Maternidade · Safári · Davi</small></div><span class="v">R$ 590,00</span></div>
+    <div class="ped a dir" style="--d:66.4s"><span class="num">#0124</span><div class="q">Patrícia Alves<small>Bolsa Passeio · Fundo do Mar · Alice</small></div><span class="v">R$ 410,00</span></div>
+    <div class="ped a dir" style="--d:66.8s"><span class="num">#0123</span><div class="q">Fernanda Dias<small>Bolsa Lúdica · Astronautas · Laura</small></div><span class="v">R$ 465,00</span></div>
     <!-- editar o site -->
     <div class="edita a entra" style="--d:70.5s">
-      <div class="p-topo"><div class="nome">Painel · Ateliê Fio de Mel</div></div>
+      <div class="p-topo"><div class="nome">Painel · Isa Barros Ateliê</div></div>
       <div class="abas"><span class="aba">Pedidos</span><span class="aba on">Meu site</span><span class="aba">Temas</span></div>
       <div style="display:flex;gap:30px;padding:30px">
-        <div style="width:300px;height:300px;border-radius:30px;background:#fde3e8;display:flex;align-items:center;justify-content:center;flex:none"><svg width="240" height="240" viewBox="0 0 140 140"><use href="#p-bolsa"/><use href="#t-coroa" x="48" y="64" width="44" height="44"/></svg></div>
+        <img src="video-assets/foto-bolsa.jpg" style="width:300px;height:372px;object-fit:cover;border-radius:30px;flex:none">
         <div style="flex:1;font-size:26px">
-          <div style="font-weight:800;margin-bottom:8px">Nome do produto</div><div class="caixa" style="font-size:28px">Bolsa Maternidade</div>
-          <div style="font-weight:800;margin:20px 0 8px">Preço</div><div class="caixa" style="font-size:28px">R$ <span class="a some" style="--d:72.4s;margin-left:8px">289,00</span><span style="position:absolute;margin-left:46px" data-digita="72.8 7" data-texto="269,00"></span></div>
+          <div style="font-weight:800;margin-bottom:8px">Nome do produto</div><div class="caixa" style="font-size:28px">Bolsa Maternidade Estilo</div>
+          <div style="font-weight:800;margin:20px 0 8px">Preço</div><div class="caixa" style="font-size:28px">R$ <span class="a some" style="--d:72.4s;margin-left:8px">440,00</span><span style="position:absolute;margin-left:46px" data-digita="72.8 7" data-texto="460,00"></span></div>
         </div>
       </div>
       <div style="padding:0 30px;font-size:26px"><div style="font-weight:800;margin-bottom:8px">Descrição</div><div class="caixa" style="font-size:26px;line-height:1.4">Bolsa maternidade bordada com o tema e o nome que você escolher ♡</div></div>
