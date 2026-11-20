@@ -123,6 +123,14 @@ b{color:#c9566e}
 .item:nth-child(even){border-color:#a9cfea}
 .icone{flex:none;width:80px;height:80px;border-radius:50%;background:linear-gradient(#f6a3b2,#ee8a9c);box-shadow:0 5px 0 #d97087;display:flex;align-items:center;justify-content:center}
 .item:nth-child(even) .icone{background:linear-gradient(#cfe6f6,#a9cfea);box-shadow:0 5px 0 #8db8d8}
+/* passos da entrega */
+.passos{position:absolute;left:70px;right:70px;top:620px;display:flex;flex-direction:column;gap:36px}
+.passo{display:flex;gap:30px;align-items:center;background:#fff;border:2px dashed #f6c3cd;border-radius:36px;padding:40px 38px}
+.passo .num{flex:none;width:100px;height:100px;border-radius:50%;background:linear-gradient(#f6a3b2,#ee8a9c);color:#fff;font-family:Fredoka,sans-serif;font-size:56px;font-weight:600;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 #d97087}
+.passo.azul{border-color:#a9cfea}
+.passo.azul .num{background:linear-gradient(#cfe6f6,#a9cfea);color:#3d6f91;box-shadow:0 6px 0 #8db8d8}
+.passo h2{font-size:50px}
+.passo p{font-size:38px;line-height:1.3;margin-top:4px}
 /* final */
 .blob{position:absolute;left:50%;top:330px;width:760px;height:700px;margin-left:-380px;background:#fde3e8;border-radius:46% 54% 48% 52% / 55% 48% 52% 45%}
 .isa{position:absolute;left:50%;top:300px;width:840px;margin-left:-420px}
@@ -353,32 +361,48 @@ b{color:#c9566e}
   <div class="op azul a dir" style="--d:79.9s;top:1060px"><h2>Produtos + catálogo de temas</h2><p>Tudo isso e mais de <b>1.300 temas</b> para a cliente escolher.</p></div>
 </section>
 
-<!-- 9. resumo -->
-<section class="cena" data-in="84" data-out="92">
-  <div class="centro" style="top:270px"><h2 class="a sobe" style="--d:84.2s;font-size:72px">No seu site você tem:</h2></div>
+<!-- 9. entrega 100% pronta -->
+<section class="cena" data-in="84" data-out="93">
+  <div class="centro" style="top:230px">
+    <h2 class="a sobe" style="--d:84.2s;font-size:66px">E o melhor:</h2>
+    <h1 class="a pop" style="--d:84.7s;font-size:104px;margin-top:10px">Eu entrego<br><span style="color:#5f93ba;white-space:nowrap">100% pronto!</span></h1>
+  </div>
+  <div class="passos">
+    <div class="passo a sobe" style="--d:85.8s"><div class="num">1</div><div><h2>Você me envia seu catálogo</h2><p>Produtos, fotos e valores.</p></div></div>
+    <div class="passo azul a sobe" style="--d:86.8s"><div class="num">2</div><div><h2>E como comprar</h2><p>Pagamento, envio e as informações da sua loja.</p></div></div>
+    <div class="passo a sobe" style="--d:87.8s"><div class="num">3</div><div><h2>Eu monto e te entrego pronto</h2><p>É só <b>sair divulgando!</b> 🎉</p></div></div>
+  </div>
+  <div class="centro a sobe" style="--d:89.2s;top:1530px"><span class="leg">Você não precisa mexer<br>em nada de site. <b>Eu faço tudo ♡</b></span></div>
+</section>
+
+<!-- 10. resumo -->
+<section class="cena" data-in="93" data-out="101">
+  <div class="centro" style="top:270px"><h2 class="a sobe" style="--d:93.2s;font-size:72px">No seu site você tem:</h2></div>
   <div class="lista">
-    <div class="item a esq" style="--d:84.7s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Seus produtos com fotos e preços</div>
-    <div class="item a esq" style="--d:85.2s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Carrinho de compras</div>
-    <div class="item a esq" style="--d:85.7s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Pedido completo no WhatsApp, com PDF</div>
-    <div class="item a esq" style="--d:86.2s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Painel para editar o site</div>
-    <div class="item a esq" style="--d:86.7s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Todos os pedidos num só lugar</div>
-    <div class="item a esq" style="--d:87.2s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Opcional: +1.300 temas de bordado</div>
+    <div class="item a esq" style="--d:93.7s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Seus produtos com fotos e preços</div>
+    <div class="item a esq" style="--d:94.2s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Carrinho de compras</div>
+    <div class="item a esq" style="--d:94.7s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Pedido completo no WhatsApp, com PDF</div>
+    <div class="item a esq" style="--d:95.2s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Painel para editar o site</div>
+    <div class="item a esq" style="--d:95.7s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Todos os pedidos num só lugar</div>
+    <div class="item a esq" style="--d:96.2s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Opcional: +1.300 temas de bordado</div>
+    <div class="item a esq" style="--d:96.7s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Tudo entregue 100% pronto ♡</div>
   </div>
 </section>
 
-<!-- 10. chamada final -->
-<section class="cena" data-in="92" data-out="999">
-  <div class="blob a pop" style="--d:92.1s"></div>
-  <img class="isa a sobe" style="--d:92.3s" src="../public/isa.webp">
+<!-- 11. chamada final -->
+<section class="cena" data-in="101" data-out="999">
+  <div class="blob a pop" style="--d:101.1s"></div>
+  <img class="isa a sobe" style="--d:101.3s" src="../public/isa.webp">
   <div class="centro" style="top:1090px">
-    <div class="a pop" style="--d:92.9s"><span class="etiqueta">Isa Barros Ateliê</span></div>
-    <h1 class="a sobe" style="--d:93.2s;font-size:84px;margin-top:30px">Chega de print!<br>Vamos montar<br>o seu site?</h1>
-    <div class="a pop" style="--d:94.2s;margin-top:50px"><span class="botao pulsa">Me chama no direct ♡</span></div>
+    <div class="a pop" style="--d:101.9s"><span class="etiqueta">Isa Barros Ateliê</span></div>
+    <h1 class="a sobe" style="--d:102.2s;font-size:80px;margin-top:26px">Chega de print!<br>Vamos montar o seu site?</h1>
+    <div class="a sobe" style="--d:102.8s;margin-top:22px;font-family:Fredoka;font-weight:600;font-size:50px;color:#5f93ba">Eu monto e entrego 100% pronto ♡</div>
+    <div class="a pop" style="--d:103.4s;margin-top:44px"><span class="botao pulsa">Me chama no direct ♡</span></div>
   </div>
 </section>
 
 <script>
-const DURACAO = 100;
+const DURACAO = 109;
 const FADE = 0.4;
 const cenas = [...document.querySelectorAll('.cena')];
 const rolam = [...document.querySelectorAll('[data-rolar]')];
