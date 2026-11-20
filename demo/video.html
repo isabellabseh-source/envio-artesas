@@ -1,0 +1,204 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- Vídeo de divulgação (Reels/Stories 1080x1920). Gravado por demo/video.mjs; seek(t) posiciona tudo no segundo t. -->
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1080px;height:1920px;overflow:hidden;background:#fff8f3;font-family:Nunito,sans-serif;color:#5b4650;position:relative}
+.fundo{position:absolute;inset:0;background:radial-gradient(900px 700px at 100% 0%,#e6f2fa,transparent 70%),radial-gradient(900px 800px at 0% 100%,#fde3e8,transparent 70%)}
+.borda{position:absolute;inset:24px;border:3px dashed #f3a9b7;border-radius:40px}
+.cena{position:absolute;inset:0;opacity:0}
+.centro{position:absolute;left:80px;right:80px;text-align:center}
+h1{font-family:Fredoka,sans-serif;font-weight:600;color:#c9566e;line-height:1.05}
+h2{font-family:Fredoka,sans-serif;font-weight:600;color:#c9566e;line-height:1.1}
+b{color:#c9566e}
+.etiqueta{display:inline-block;background:#bcdcf1;color:#3d6f91;font-weight:800;font-size:36px;padding:12px 32px;border-radius:999px}
+.botao{display:inline-block;background:linear-gradient(#f6a3b2,#ee8a9c);color:#fff;font-family:Fredoka,sans-serif;font-weight:600;font-size:52px;padding:26px 64px;border-radius:999px;box-shadow:0 8px 0 #d97087}
+
+/* animações (todas pausadas; o tempo é controlado por seek) */
+.a{animation-duration:.7s;animation-fill-mode:both;animation-timing-function:cubic-bezier(.2,.8,.25,1.15);animation-delay:var(--d)}
+.sobe{animation-name:sobe}
+.pop{animation-name:pop}
+.esq{animation-name:esq}
+.dir{animation-name:dir}
+@keyframes sobe{from{opacity:0;transform:translateY(70px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+@keyframes esq{from{opacity:0;transform:translateX(-120px)}to{opacity:1;transform:none}}
+@keyframes dir{from{opacity:0;transform:translateX(120px)}to{opacity:1;transform:none}}
+@keyframes flutua{0%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-26px) rotate(calc(var(--r,0deg) + 8deg))}100%{transform:translateY(0) rotate(var(--r,0deg))}}
+@keyframes pulsa{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.coracao{position:absolute;animation:flutua 3.2s ease-in-out infinite;animation-delay:var(--f,0s)}
+
+/* cena 2: conversas */
+.balao{position:absolute;font-size:40px;line-height:1.3;padding:26px 34px;border-radius:34px;max-width:720px;box-shadow:0 6px 18px rgba(222,120,142,.15)}
+.balao.ela{left:90px;background:#fff;border:2px solid #f5cdd5;border-bottom-left-radius:8px}
+.balao.cli{right:90px;background:#d9ecf8;color:#2f5a78;border-bottom-right-radius:8px}
+.risco{position:absolute;left:50%;top:1280px;width:0;height:8px;background:#ee8a9c;border-radius:4px;transform:translateX(-50%) rotate(-4deg)}
+
+/* cena 3: celular com o site */
+.celular{position:absolute;left:50%;top:560px;width:600px;height:1180px;margin-left:-300px;background:#fff;border:16px solid #5b4650;border-radius:70px;overflow:hidden;box-shadow:0 30px 60px rgba(91,70,80,.25)}
+.notch{position:absolute;left:50%;top:0;width:180px;height:34px;margin-left:-90px;background:#5b4650;border-radius:0 0 20px 20px;z-index:3}
+.tela{position:absolute;left:0;right:0;top:0}
+.site-topo{background:#fde3e8;padding:70px 30px 34px;text-align:center}
+.logo{width:120px;height:120px;border-radius:50%;background:#fff;border:3px dashed #ee8a9c;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.site-nome{font-family:Fredoka,sans-serif;font-weight:600;color:#c9566e;font-size:42px;margin-top:14px}
+.site-sub{font-size:22px;color:#93727b}
+.chips{display:flex;gap:10px;padding:22px 20px 6px;justify-content:center;flex-wrap:wrap}
+.chip{font-size:21px;font-weight:800;padding:8px 18px;border-radius:999px;background:#e6f2fa;color:#3d6f91}
+.chip.on{background:#ee8a9c;color:#fff}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px 22px}
+.prod{background:#fffdfb;border:2px solid #f5cdd5;border-radius:24px;overflow:hidden}
+.prod .foto{height:200px;display:flex;align-items:center;justify-content:center}
+.prod .info{padding:12px 14px 16px}
+.prod .n{font-weight:800;font-size:21px;color:#5b4650;line-height:1.2}
+.prod .p{font-family:Fredoka,sans-serif;font-weight:600;font-size:26px;color:#c9566e;margin-top:4px}
+.secao{margin:10px 22px;padding:22px;border-radius:24px;font-size:21px;line-height:1.4}
+.secao h3{font-family:Fredoka,sans-serif;font-weight:600;font-size:28px;color:#c9566e;margin-bottom:6px}
+.selo{position:absolute;padding:18px 30px;background:#fff;border:3px dashed #f3a9b7;border-radius:999px;font-family:Fredoka,sans-serif;font-weight:600;font-size:38px;color:#c9566e;box-shadow:0 8px 20px rgba(222,120,142,.2);white-space:nowrap}
+
+/* cena 4: o que vem */
+.lista{position:absolute;left:80px;right:80px;top:560px;display:flex;flex-direction:column;gap:26px}
+.item{display:flex;align-items:center;gap:28px;background:#fff;border:2px dashed #f6c3cd;border-radius:34px;padding:26px 32px;font-size:40px;font-weight:700;line-height:1.25}
+.item:nth-child(even){border-color:#a9cfea}
+.icone{flex:none;width:86px;height:86px;border-radius:50%;background:linear-gradient(#f6a3b2,#ee8a9c);box-shadow:0 5px 0 #d97087;display:flex;align-items:center;justify-content:center}
+.item:nth-child(even) .icone{background:linear-gradient(#cfe6f6,#a9cfea);box-shadow:0 5px 0 #8db8d8}
+
+/* cena 5: passos */
+.passos{position:absolute;left:70px;right:70px;top:640px;display:flex;flex-direction:column;gap:44px}
+.passo{display:flex;gap:30px;align-items:center;background:#fff;border:2px dashed #f6c3cd;border-radius:36px;padding:48px 38px}
+.num{flex:none;width:100px;height:100px;border-radius:50%;background:linear-gradient(#f6a3b2,#ee8a9c);color:#fff;font-family:Fredoka,sans-serif;font-size:56px;font-weight:600;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 #d97087}
+.passo.azul{border-color:#a9cfea}
+.passo.azul .num{background:linear-gradient(#cfe6f6,#a9cfea);color:#3d6f91;box-shadow:0 6px 0 #8db8d8}
+.passo h2{font-size:52px}
+.passo p{font-size:38px;line-height:1.3;margin-top:4px}
+
+/* cena 6: chamada final */
+.blob{position:absolute;left:50%;top:330px;width:760px;height:700px;margin-left:-380px;background:#fde3e8;border-radius:46% 54% 48% 52% / 55% 48% 52% 45%}
+.isa{position:absolute;left:50%;top:300px;width:840px;margin-left:-420px}
+.pulsa{animation:pulsa 1.4s ease-in-out infinite}
+</style></head><body>
+<div class="fundo"></div>
+<div class="borda"></div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <radialGradient id="gr" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#ffc2cc"/><stop offset="1" stop-color="#f08a9c"/></radialGradient>
+  <radialGradient id="ga" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#d6ebf8"/><stop offset="1" stop-color="#93bfdf"/></radialGradient>
+  <symbol id="cor" viewBox="0 0 100 96"><path d="M50 88C22 68 6 52 6 32 6 18 17 8 30 8c9 0 16 5 20 12 4-7 11-12 20-12 13 0 24 10 24 24 0 20-16 36-44 56z"/><ellipse cx="30" cy="26" rx="10" ry="6" fill="#fff" opacity=".65" transform="rotate(-30 30 26)"/></symbol>
+  <symbol id="ok" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<!-- corações flutuando o vídeo todo -->
+<svg class="coracao" style="left:70px;top:150px;--f:-.4s;--r:-12deg" width="90" height="86"><use href="#cor" fill="url(#gr)"/></svg>
+<svg class="coracao" style="right:90px;top:250px;--f:-1.6s;--r:10deg" width="64" height="62"><use href="#cor" fill="url(#ga)"/></svg>
+<svg class="coracao" style="left:110px;bottom:190px;--f:-2.2s;--r:8deg" width="60" height="58"><use href="#cor" fill="url(#ga)"/></svg>
+<svg class="coracao" style="right:80px;bottom:260px;--f:-.9s;--r:-8deg" width="84" height="80"><use href="#cor" fill="url(#gr)"/></svg>
+
+<!-- 1. gancho -->
+<section class="cena" data-in="0" data-out="4.2">
+  <div class="centro" style="top:520px">
+    <div class="a pop" style="--d:.2s"><span class="etiqueta">Para artesãs ♡</span></div>
+    <h1 class="a sobe" style="--d:.5s;font-size:116px;margin-top:50px">Seu trabalho é lindo.</h1>
+    <h1 class="a sobe" style="--d:1.5s;font-size:96px;margin-top:40px;color:#5f93ba">Ele merece uma vitrine à altura!</h1>
+  </div>
+  <svg class="a pop" style="--d:2.4s;position:absolute;left:50%;top:1340px;margin-left:-80px" width="160" height="154"><use href="#cor" fill="url(#gr)"/></svg>
+</section>
+
+<!-- 2. problema -->
+<section class="cena" data-in="4.2" data-out="8.6">
+  <div class="centro" style="top:300px"><h2 class="a sobe" style="--d:4.4s;font-size:76px">Ainda vende só<br>pelo WhatsApp?</h2></div>
+  <div class="balao cli a dir" style="--d:5.0s;top:640px">Oi! Quanto custa? 😊</div>
+  <div class="balao ela a esq" style="--d:5.5s;top:790px">📷 foto 1 &nbsp;📷 foto 2 &nbsp;📷 foto 3…</div>
+  <div class="balao cli a dir" style="--d:6.0s;top:940px">Tem em outra cor?</div>
+  <div class="balao cli a dir" style="--d:6.4s;top:1090px">Como faço o pedido? E o frete?</div>
+  <div class="centro a sobe" style="--d:7.1s;top:1290px;font-size:48px;font-weight:800">Um catálogo organizado<br><b>responde tudo por você.</b></div>
+</section>
+
+<!-- 3. o site -->
+<section class="cena" data-in="8.6" data-out="16.6">
+  <div class="centro" style="top:240px">
+    <h2 class="a sobe" style="--d:8.8s;font-size:84px">Eu crio o site catálogo<br>do seu ateliê ♡</h2>
+  </div>
+  <div class="celular a sobe" style="--d:9.3s">
+    <div class="notch"></div>
+    <div class="tela" id="rolagem">
+      <div class="site-topo">
+        <div class="logo"><svg width="70" height="68"><use href="#cor" fill="url(#gr)"/></svg></div>
+        <div class="site-nome">Ateliê Flor de Linha</div>
+        <div class="site-sub">Crochê e presentes feitos à mão</div>
+      </div>
+      <div class="chips"><span class="chip on">Todos</span><span class="chip">Amigurumis</span><span class="chip">Bolsas</span><span class="chip">Casa</span></div>
+      <div class="grade">
+        <div class="prod"><div class="foto" style="background:#fde3e8"><svg width="150" height="160" viewBox="0 0 150 160"><circle cx="40" cy="38" r="20" fill="#d9a07a"/><circle cx="110" cy="38" r="20" fill="#d9a07a"/><circle cx="40" cy="38" r="10" fill="#f6c3cd"/><circle cx="110" cy="38" r="10" fill="#f6c3cd"/><ellipse cx="75" cy="120" rx="46" ry="38" fill="#e6b08a"/><circle cx="75" cy="65" r="44" fill="#e6b08a"/><ellipse cx="75" cy="78" rx="18" ry="13" fill="#f3d3bb"/><circle cx="60" cy="60" r="5" fill="#5b4650"/><circle cx="90" cy="60" r="5" fill="#5b4650"/><ellipse cx="75" cy="73" rx="6" ry="4" fill="#5b4650"/><circle cx="50" cy="75" r="7" fill="#f6a3b2" opacity=".7"/><circle cx="100" cy="75" r="7" fill="#f6a3b2" opacity=".7"/></svg></div><div class="info"><div class="n">Ursinho Mel</div><div class="p">R$ 89,90</div></div></div>
+        <div class="prod"><div class="foto" style="background:#e6f2fa"><svg width="150" height="160" viewBox="0 0 150 160"><path d="M50 60 C50 20 100 20 100 60" fill="none" stroke="#c9566e" stroke-width="9"/><path d="M25 60h100l-10 85H35z" fill="#ee8a9c"/><path d="M30 85h90M33 110h84" stroke="#f6c3cd" stroke-width="5" stroke-dasharray="8 7"/><use href="#cor" x="60" y="88" width="30" height="29" fill="#fff"/></svg></div><div class="info"><div class="n">Bolsa Coração</div><div class="p">R$ 129,00</div></div></div>
+        <div class="prod"><div class="foto" style="background:#fff1e6"><svg width="150" height="160" viewBox="0 0 150 160"><rect x="35" y="55" width="80" height="90" rx="16" fill="#bcdcf1"/><rect x="35" y="80" width="80" height="34" fill="#fff"/><text x="75" y="104" font-family="Fredoka" font-size="18" fill="#c9566e" text-anchor="middle">lavanda</text><path d="M75 55v-14" stroke="#5b4650" stroke-width="4"/><path d="M75 16c10 10 8 20 0 25-8-5-10-15 0-25z" fill="#f6a3b2"/></svg></div><div class="info"><div class="n">Vela Aromática</div><div class="p">R$ 45,00</div></div></div>
+        <div class="prod"><div class="foto" style="background:#fde3e8"><svg width="150" height="160" viewBox="0 0 150 160"><path d="M75 140c-40-28-62-48-62-76 0-20 15-34 33-34 13 0 23 7 29 17 6-10 16-17 29-17 18 0 33 14 33 34 0 28-22 48-62 76z" fill="#f6a3b2"/><path d="M75 128c-32-22-50-40-50-62 0-14 10-25 22-25" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="7 7"/></svg></div><div class="info"><div class="n">Almofada Amor</div><div class="p">R$ 69,90</div></div></div>
+        <div class="prod"><div class="foto" style="background:#e6f2fa"><svg width="150" height="160" viewBox="0 0 150 160"><path d="M55 60h40l12 80H43z" fill="#fffdfb" stroke="#a9cfea" stroke-width="4"/><path d="M75 60V30" stroke="#7fb07f" stroke-width="5"/><circle cx="75" cy="26" r="14" fill="#ee8a9c"/><circle cx="58" cy="40" r="11" fill="#bcdcf1"/><circle cx="92" cy="40" r="11" fill="#f6c3cd"/></svg></div><div class="info"><div class="n">Vaso Florzinha</div><div class="p">R$ 59,90</div></div></div>
+        <div class="prod"><div class="foto" style="background:#fff1e6"><svg width="150" height="160" viewBox="0 0 150 160"><circle cx="50" cy="40" r="7" fill="#c9a36a"/><circle cx="100" cy="40" r="7" fill="#c9a36a"/><path d="M50 47v20M100 47v20" stroke="#c9a36a" stroke-width="3"/><use href="#cor" x="22" y="66" width="56" height="54" fill="url(#gr)"/><use href="#cor" x="72" y="66" width="56" height="54" fill="url(#gr)"/></svg></div><div class="info"><div class="n">Brinco Doce</div><div class="p">R$ 35,00</div></div></div>
+      </div>
+      <div class="secao" style="background:#e6f2fa"><h3>Pagamento e envio</h3>Pix, cartão ou boleto · Enviamos para todo o Brasil</div>
+      <div class="secao" style="background:#fde3e8"><h3>Quem já comprou ♡</h3>"Chegou perfeito e muito bem embalado!" — Ana</div>
+      <div class="secao" style="background:#fff1e6"><h3>Sobre o ateliê</h3>Cada peça é feita à mão, com muito carinho.</div>
+    </div>
+  </div>
+  <div class="selo a pop" style="--d:10.6s;left:60px;top:740px;transform-origin:left">📸 Fotos e preços</div>
+  <div class="selo a pop" style="--d:12.2s;right:56px;top:1150px">🎨 Sua logo e cores</div>
+  <div class="selo a pop" style="--d:13.8s;left:56px;top:1500px">🌐 Seu domínio</div>
+</section>
+
+<!-- 4. o que vem no site -->
+<section class="cena" data-in="16.6" data-out="22.6">
+  <div class="centro" style="top:270px"><h2 class="a sobe" style="--d:16.8s;font-size:80px">Tudo o que sua cliente precisa ver:</h2></div>
+  <div class="lista">
+    <div class="item a esq" style="--d:17.4s"><span class="icone"><svg width="50" height="50"><use href="#ok"/></svg></span>Produtos por categoria, com fotos, valor e tamanho</div>
+    <div class="item a esq" style="--d:18.0s"><span class="icone"><svg width="50" height="50"><use href="#ok"/></svg></span>A sua logo e as cores da sua marca</div>
+    <div class="item a esq" style="--d:18.6s"><span class="icone"><svg width="50" height="50"><use href="#ok"/></svg></span>Formas de pagamento e de envio</div>
+    <div class="item a esq" style="--d:19.2s"><span class="icone"><svg width="50" height="50"><use href="#ok"/></svg></span>Depoimentos de quem já comprou</div>
+    <div class="item a esq" style="--d:19.8s"><span class="icone"><svg width="50" height="50"><use href="#ok"/></svg></span>A história do seu ateliê</div>
+    <div class="item a esq" style="--d:20.4s"><span class="icone"><svg width="50" height="50"><use href="#ok"/></svg></span>Endereço com o nome da sua marca</div>
+  </div>
+</section>
+
+<!-- 5. como funciona -->
+<section class="cena" data-in="22.6" data-out="28.2">
+  <div class="centro" style="top:300px"><h2 class="a sobe" style="--d:22.8s;font-size:84px">E é bem fácil:</h2></div>
+  <div class="passos">
+    <div class="passo a sobe" style="--d:23.3s"><div class="num">1</div><div><h2>Você recebe um link</h2><p>Só seu, sem senha e sem cadastro.</p></div></div>
+    <div class="passo azul a sobe" style="--d:24.3s"><div class="num">2</div><div><h2>Manda tudo pelo celular</h2><p>Fotos, produtos e valores. <b>Salva sozinho.</b></div></div>
+    <div class="passo a sobe" style="--d:25.3s"><div class="num">3</div><div><h2>Eu monto o seu site</h2><p>Lindo, do jeitinho do seu ateliê ♡</p></div></div>
+  </div>
+</section>
+
+<!-- 6. chamada final -->
+<section class="cena" data-in="28.2" data-out="99">
+  <div class="blob a pop" style="--d:28.3s"></div>
+  <img class="isa a sobe" style="--d:28.5s" src="../public/isa.webp">
+  <div class="centro" style="top:1100px">
+    <div class="a pop" style="--d:29.1s"><span class="etiqueta">Isa Barros Ateliê</span></div>
+    <h1 class="a sobe" style="--d:29.4s;font-size:92px;margin-top:34px">Vamos montar o site do seu ateliê?</h1>
+    <div class="a pop" style="--d:30.3s;margin-top:56px"><span class="botao pulsa">Me chama no direct ♡</span></div>
+  </div>
+</section>
+
+<script>
+const DURACAO = 34;
+const FADE = 0.4;
+const cenas = [...document.querySelectorAll('.cena')];
+const rolagem = document.getElementById('rolagem');
+document.getAnimations().forEach(a => a.pause());
+const suave = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
+window.seek = t => {
+  for (const c of cenas) {
+    const i = +c.dataset.in, o = +c.dataset.out;
+    const op = Math.min(suave((t - i) / FADE + (i === 0 ? 1 : 0)), 1 - suave((t - o + FADE) / FADE));
+    c.style.opacity = op;
+    c.style.visibility = op > 0 ? 'visible' : 'hidden';
+  }
+  // rolagem do site dentro do celular
+  const r = suave((t - 10.4) / 5.4);
+  rolagem.style.transform = `translateY(${-r * (rolagem.scrollHeight - 1148)}px)`;
+  for (const a of document.getAnimations()) a.currentTime = t * 1000;
+};
+window.DURACAO = DURACAO;
+seek(0);
+</script>
+</body></html>
