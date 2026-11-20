@@ -1,0 +1,415 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- Reel de divulgação: site com carrinho, pedido no WhatsApp com PDF, catálogo de temas e painel.
+     Gravado por: node demo/video.mjs demo/video-bordado.html  ->  dist/video-bordado.mp4 -->
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1080px;height:1920px;overflow:hidden;background:#fff8f3;font-family:Nunito,sans-serif;color:#5b4650;position:relative}
+.fundo{position:absolute;inset:0;background:radial-gradient(900px 700px at 100% 0%,#e6f2fa,transparent 70%),radial-gradient(900px 800px at 0% 100%,#fde3e8,transparent 70%)}
+.borda{position:absolute;inset:24px;border:3px dashed #f3a9b7;border-radius:40px}
+.cena{position:absolute;inset:0;opacity:0}
+.centro{position:absolute;left:70px;right:70px;text-align:center}
+h1,h2,h3{font-family:Fredoka,sans-serif;font-weight:600;color:#c9566e;line-height:1.08}
+b{color:#c9566e}
+.etiqueta{display:inline-block;background:#bcdcf1;color:#3d6f91;font-weight:800;font-size:36px;padding:12px 32px;border-radius:999px}
+.botao{display:inline-block;background:linear-gradient(#f6a3b2,#ee8a9c);color:#fff;font-family:Fredoka,sans-serif;font-weight:600;font-size:52px;padding:26px 64px;border-radius:999px;box-shadow:0 8px 0 #d97087}
+.leg{font-size:46px;font-weight:800;line-height:1.3}
+
+/* animações: todas pausadas, o tempo vem do seek(t) */
+.a{animation-duration:.7s;animation-fill-mode:both;animation-timing-function:cubic-bezier(.2,.8,.25,1.15);animation-delay:var(--d)}
+.sobe{animation-name:sobe}.pop{animation-name:pop}.esq{animation-name:esq}.dir{animation-name:dir}.entra{animation-name:entra;animation-timing-function:cubic-bezier(.3,.7,.2,1)}
+.some{animation-name:some;animation-duration:.4s}
+@keyframes sobe{from{opacity:0;transform:translateY(70px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+@keyframes esq{from{opacity:0;transform:translateX(-120px)}to{opacity:1;transform:none}}
+@keyframes dir{from{opacity:0;transform:translateX(120px)}to{opacity:1;transform:none}}
+@keyframes entra{from{transform:translateX(100%)}to{transform:none}}
+@keyframes some{from{opacity:1}to{opacity:0}}
+@keyframes flutua{0%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-26px) rotate(calc(var(--r,0deg) + 8deg))}100%{transform:translateY(0) rotate(var(--r,0deg))}}
+@keyframes pulsa{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes toque{0%{opacity:0;transform:scale(.4)}25%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(1.7)}}
+@keyframes aperta{0%,100%{transform:scale(1)}40%{transform:scale(.92)}}
+@keyframes cai{0%{opacity:0;transform:translateY(-200px) rotate(var(--r))}60%{opacity:1}100%{opacity:1;transform:translateY(0) rotate(var(--r))}}
+.coracao{position:absolute;animation:flutua 3.2s ease-in-out infinite;animation-delay:var(--f,0s)}
+.pulsa{animation:pulsa 1.4s ease-in-out infinite}
+.toque{position:absolute;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;background:rgba(201,86,110,.35);border:4px solid rgba(201,86,110,.7);animation:toque .8s ease-out both;animation-delay:var(--d);z-index:20;pointer-events:none}
+.aperta{animation:aperta .35s ease-in-out both;animation-delay:var(--d)}
+
+/* celular */
+.celular{position:absolute;left:50%;top:500px;width:600px;height:1120px;margin-left:-300px;background:#fff;border:16px solid #5b4650;border-radius:70px;overflow:hidden;box-shadow:0 30px 60px rgba(91,70,80,.25)}
+.notch{position:absolute;left:50%;top:0;width:180px;height:34px;margin-left:-90px;background:#5b4650;border-radius:0 0 20px 20px;z-index:30}
+.tela{position:absolute;inset:0;background:#fffdfb;overflow:hidden}
+.rola{position:absolute;left:0;right:0;top:0}
+.barra{background:#fde3e8;padding:56px 26px 18px;display:flex;align-items:center;gap:14px}
+.barra .mini{width:62px;height:62px;border-radius:50%;background:#fff;border:3px dashed #ee8a9c;display:flex;align-items:center;justify-content:center;flex:none}
+.barra .nome{font-family:Fredoka,sans-serif;font-weight:600;color:#c9566e;font-size:32px;line-height:1.1}
+.barra .sub{font-size:18px;color:#93727b}
+.barra .sacola{margin-left:auto;position:relative}
+.barra .qtd{position:absolute;right:-8px;top:-8px;width:30px;height:30px;border-radius:50%;background:#c9566e;color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.chips{display:flex;gap:10px;padding:18px 18px 4px;flex-wrap:wrap}
+.chip{font-size:20px;font-weight:800;padding:7px 16px;border-radius:999px;background:#e6f2fa;color:#3d6f91}
+.chip.on{background:#ee8a9c;color:#fff}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px 20px}
+.prod{background:#fff;border:2px solid #f5cdd5;border-radius:22px;overflow:hidden}
+.prod .foto{height:190px;display:flex;align-items:center;justify-content:center}
+.prod .info{padding:10px 14px 14px}
+.prod .n{font-weight:800;font-size:20px;line-height:1.2}
+.prod .p{font-family:Fredoka,sans-serif;font-weight:600;font-size:25px;color:#c9566e;margin-top:2px}
+.prod .add{margin-top:8px;text-align:center;background:#ee8a9c;color:#fff;font-weight:800;font-size:18px;padding:7px;border-radius:999px}
+.busca{margin:18px 20px 0;padding:14px 22px;border-radius:999px;border:2px solid #f5cdd5;background:#fff;font-size:22px;color:#93727b;display:flex;gap:12px;align-items:center}
+.temas{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px 18px}
+.tema{background:#fff;border:2px solid #f5cdd5;border-radius:20px;padding:8px 6px 10px;text-align:center;position:relative}
+.tema .ilu{height:120px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.tema .t{font-weight:800;font-size:16px;margin-top:6px;line-height:1.15}
+.tema .cod{font-size:13px;color:#93727b}
+.tema.esc{border:4px solid #c9566e}
+.marca{position:absolute;right:8px;top:8px;width:40px;height:40px;border-radius:50%;background:#c9566e;display:flex;align-items:center;justify-content:center}
+.campo{margin:12px 22px 0}
+.campo .rot{font-weight:800;font-size:21px;margin-bottom:6px}
+.caixa{border:2px solid #f5cdd5;border-radius:18px;padding:12px 16px;font-size:22px;background:#fff;display:flex;align-items:center;gap:12px;min-height:58px}
+.cursor{display:inline-block;width:3px;height:26px;background:#c9566e;vertical-align:middle;margin-left:2px}
+.cores{display:flex;gap:14px}
+.cores span{width:48px;height:48px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #f5cdd5}
+.cores span.on{box-shadow:0 0 0 4px #c9566e}
+.grande{display:block;margin:18px 22px 0;text-align:center;background:linear-gradient(#f6a3b2,#ee8a9c);color:#fff;font-family:Fredoka,sans-serif;font-weight:600;font-size:30px;padding:18px;border-radius:999px;box-shadow:0 5px 0 #d97087}
+.grande.zap{background:linear-gradient(#4fd17a,#25b25b);box-shadow:0 5px 0 #1b8b45}
+.linha{display:flex;gap:14px;align-items:center;margin:12px 20px 0;padding:14px;border:2px solid #f5cdd5;border-radius:20px;background:#fff}
+.linha .th{width:90px;height:90px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center}
+.linha .n{font-weight:800;font-size:21px;line-height:1.2}
+.linha .d{font-size:17px;color:#93727b;line-height:1.3}
+.linha .p{margin-left:auto;font-family:Fredoka,sans-serif;font-weight:600;color:#c9566e;font-size:24px;white-space:nowrap}
+.total{display:flex;justify-content:space-between;margin:18px 26px 0;font-family:Fredoka,sans-serif;font-weight:600;font-size:32px;color:#c9566e}
+/* whatsapp */
+.zap-topo{background:#075e54;color:#fff;padding:52px 22px 16px;display:flex;align-items:center;gap:14px}
+.zap-topo .av{width:56px;height:56px;border-radius:50%;background:#fde3e8;display:flex;align-items:center;justify-content:center}
+.zap-topo .n{font-weight:800;font-size:24px}.zap-topo .s{font-size:16px;opacity:.8}
+.zap-fundo{position:absolute;left:0;right:0;top:124px;bottom:0;background:#efe7dd}
+.msg{position:absolute;right:16px;left:60px;background:#d9fdd3;border-radius:16px 4px 16px 16px;padding:14px 16px 26px;font-size:19.5px;line-height:1.38;color:#222;box-shadow:0 1px 1px rgba(0,0,0,.12)}
+.msg .h{position:absolute;right:12px;bottom:6px;font-size:14px;color:#667}
+.msg small{color:#555;font-size:17px}
+.pdf{display:flex;gap:14px;align-items:center;background:#c7f0c0;border-radius:10px;padding:12px}
+.pdf .ic{width:52px;height:62px;background:#e5484d;border-radius:6px;color:#fff;font-weight:800;font-size:16px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
+/* selos */
+.selo{position:absolute;padding:18px 30px;background:#fff;border:3px dashed #f3a9b7;border-radius:999px;font-family:Fredoka,sans-serif;font-weight:600;font-size:38px;color:#c9566e;box-shadow:0 8px 20px rgba(222,120,142,.2);white-space:nowrap;z-index:40}
+/* problema: prints caindo */
+.print{position:absolute;width:250px;height:330px;background:#fff;border-radius:18px;box-shadow:0 10px 24px rgba(91,70,80,.2);padding:12px;animation:cai .55s cubic-bezier(.3,.7,.3,1.2) both;animation-delay:var(--d)}
+.print .ilu{height:230px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.print .t{font-size:18px;font-weight:800;margin-top:8px;text-align:center}
+.balao{position:absolute;font-size:38px;line-height:1.3;padding:22px 30px;border-radius:32px;max-width:760px;box-shadow:0 6px 18px rgba(222,120,142,.15);background:#d9ecf8;color:#2f5a78;border-bottom-right-radius:8px;right:80px}
+/* painel */
+.painel{position:absolute;left:60px;right:60px;top:560px;height:1040px;background:#fffdfb;border:3px solid #f5cdd5;border-radius:40px;overflow:hidden;box-shadow:0 30px 60px rgba(91,70,80,.18)}
+.p-topo{background:#fde3e8;padding:28px 36px;display:flex;align-items:center;gap:18px}
+.p-topo .nome{font-family:Fredoka,sans-serif;font-weight:600;color:#c9566e;font-size:38px}
+.abas{display:flex;gap:12px;padding:22px 30px 0}
+.aba{font-weight:800;font-size:28px;padding:12px 28px;border-radius:999px;background:#e6f2fa;color:#3d6f91}
+.aba.on{background:#ee8a9c;color:#fff}
+.ped{display:flex;align-items:center;gap:20px;margin:18px 30px 0;padding:22px 26px;border:2px solid #f5cdd5;border-radius:26px;background:#fff;font-size:26px}
+.ped .num{font-family:Fredoka,sans-serif;font-weight:600;color:#c9566e;font-size:30px}
+.ped .q{flex:1;line-height:1.3}
+.ped .q small{display:block;color:#93727b;font-size:22px}
+.ped .v{font-family:Fredoka,sans-serif;font-weight:600;font-size:30px}
+.novo{background:#c9566e;color:#fff;font-weight:800;font-size:20px;padding:6px 14px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.ped.dest{border:3px solid #ee8a9c;background:#fff6f8}
+.edita{position:absolute;inset:0;top:0;background:#fffdfb}
+.toast{position:absolute;left:50%;bottom:60px;transform:translateX(-50%);background:#5b4650;color:#fff;font-weight:800;font-size:30px;padding:18px 34px;border-radius:999px;white-space:nowrap}
+/* comparação e lista */
+.op{position:absolute;left:70px;right:70px;background:#fff;border:3px dashed #f6c3cd;border-radius:40px;padding:40px 44px}
+.op.azul{border-color:#a9cfea}
+.op h2{font-size:58px}
+.op p{font-size:38px;line-height:1.35;margin-top:10px}
+.lista{position:absolute;left:70px;right:70px;top:500px;display:flex;flex-direction:column;gap:22px}
+.item{display:flex;align-items:center;gap:26px;background:#fff;border:2px dashed #f6c3cd;border-radius:32px;padding:22px 30px;font-size:38px;font-weight:700;line-height:1.25}
+.item:nth-child(even){border-color:#a9cfea}
+.icone{flex:none;width:80px;height:80px;border-radius:50%;background:linear-gradient(#f6a3b2,#ee8a9c);box-shadow:0 5px 0 #d97087;display:flex;align-items:center;justify-content:center}
+.item:nth-child(even) .icone{background:linear-gradient(#cfe6f6,#a9cfea);box-shadow:0 5px 0 #8db8d8}
+/* final */
+.blob{position:absolute;left:50%;top:330px;width:760px;height:700px;margin-left:-380px;background:#fde3e8;border-radius:46% 54% 48% 52% / 55% 48% 52% 45%}
+.isa{position:absolute;left:50%;top:300px;width:840px;margin-left:-420px}
+.contador{font-family:Fredoka,sans-serif;font-weight:600;color:#c9566e}
+</style></head><body>
+<div class="fundo"></div>
+<div class="borda"></div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <radialGradient id="gr" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#ffc2cc"/><stop offset="1" stop-color="#f08a9c"/></radialGradient>
+  <radialGradient id="ga" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#d6ebf8"/><stop offset="1" stop-color="#93bfdf"/></radialGradient>
+  <symbol id="cor" viewBox="0 0 100 96"><path d="M50 88C22 68 6 52 6 32 6 18 17 8 30 8c9 0 16 5 20 12 4-7 11-12 20-12 13 0 24 10 24 24 0 20-16 36-44 56z"/><ellipse cx="30" cy="26" rx="10" ry="6" fill="#fff" opacity=".65" transform="rotate(-30 30 26)"/></symbol>
+  <symbol id="ok" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="sacola" viewBox="0 0 24 24"><path d="M5 8h14l-1 13H6z" fill="#ee8a9c"/><path d="M9 8V6a3 3 0 016 0v2" fill="none" stroke="#c9566e" stroke-width="2"/></symbol>
+  <!-- temas (estilo bordado: preenchimento + ponto pontilhado) -->
+  <symbol id="t-urso" viewBox="0 0 100 100"><path d="M50 8c8 0 14 6 14 12l-6 10H42l-6-10c0-6 6-12 14-12z" fill="#f6a3b2"/><path d="M50 30v8" stroke="#c9566e" stroke-width="2"/><circle cx="30" cy="48" r="10" fill="#d9a07a"/><circle cx="70" cy="48" r="10" fill="#d9a07a"/><circle cx="50" cy="66" r="26" fill="#e6b08a" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><ellipse cx="50" cy="74" rx="10" ry="7" fill="#f3d3bb"/><circle cx="41" cy="62" r="3" fill="#5b4650"/><circle cx="59" cy="62" r="3" fill="#5b4650"/><ellipse cx="50" cy="71" rx="4" ry="3" fill="#5b4650"/></symbol>
+  <symbol id="t-nuvem" viewBox="0 0 100 100"><path d="M24 60a14 14 0 010-28 18 18 0 0134-6 14 14 0 0118 20 12 12 0 01-4 14z" fill="#bcdcf1" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><use href="#cor" x="26" y="66" width="14" height="13" fill="#ee8a9c"/><use href="#cor" x="46" y="74" width="12" height="11" fill="#f6a3b2"/><use href="#cor" x="62" y="64" width="14" height="13" fill="#ee8a9c"/></symbol>
+  <symbol id="t-arco" viewBox="0 0 100 100"><path d="M14 72a36 36 0 0172 0" fill="none" stroke="#f6a3b2" stroke-width="9"/><path d="M24 72a26 26 0 0152 0" fill="none" stroke="#ffd9a0" stroke-width="9"/><path d="M34 72a16 16 0 0132 0" fill="none" stroke="#bcdcf1" stroke-width="9"/><ellipse cx="18" cy="76" rx="12" ry="7" fill="#fff" stroke="#e5d5da" stroke-width="2"/><ellipse cx="82" cy="76" rx="12" ry="7" fill="#fff" stroke="#e5d5da" stroke-width="2"/></symbol>
+  <symbol id="t-lua" viewBox="0 0 100 100"><path d="M60 14a36 36 0 100 72 30 30 0 010-72z" fill="#ffd9a0" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><path d="M76 24l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#bcdcf1"/><path d="M80 62l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z" fill="#f6a3b2"/></symbol>
+  <symbol id="t-balao" viewBox="0 0 100 100"><path d="M50 8c20 0 32 14 32 30 0 18-20 30-26 36H44C38 68 18 56 18 38 18 22 30 8 50 8z" fill="#f6a3b2" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><path d="M50 8c-8 10-10 50-6 66M50 8c8 10 10 50 6 66" fill="none" stroke="#fff" stroke-width="2"/><rect x="40" y="80" width="20" height="14" rx="3" fill="#d9a07a"/><path d="M44 74l-2 6M56 74l2 6" stroke="#93727b" stroke-width="2"/></symbol>
+  <symbol id="t-coroa" viewBox="0 0 100 100"><path d="M16 74L12 30l22 18 16-26 16 26 22-18-4 44z" fill="#ffd9a0" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><rect x="16" y="74" width="68" height="10" rx="4" fill="#f0b860"/><circle cx="50" cy="56" r="6" fill="#ee8a9c"/><circle cx="30" cy="62" r="4" fill="#bcdcf1"/><circle cx="70" cy="62" r="4" fill="#bcdcf1"/></symbol>
+  <symbol id="t-baleia" viewBox="0 0 100 100"><path d="M12 60c0-20 18-30 38-30 22 0 34 14 34 26l10-12c2 10-2 18-10 22 0 10-14 18-36 18C26 84 12 74 12 60z" fill="#9cc8e6" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><circle cx="34" cy="56" r="4" fill="#3d6f91"/><path d="M40 22c0-8 4-12 6-14M40 22c0-8-4-12-6-14" fill="none" stroke="#9cc8e6" stroke-width="4" stroke-linecap="round"/><circle cx="26" cy="66" r="5" fill="#f6a3b2" opacity=".7"/></symbol>
+  <symbol id="t-borb" viewBox="0 0 100 100"><path d="M50 50C40 20 10 16 12 38c2 14 22 16 38 12zM50 50C60 20 90 16 88 38c-2 14-22 16-38 12zM50 52C38 60 20 78 32 84c10 4 16-14 18-32zM50 52c12 8 30 26 18 32-10 4-16-14-18-32z" fill="#f6a3b2" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><rect x="47" y="34" width="6" height="40" rx="3" fill="#5b4650"/></symbol>
+  <symbol id="t-dino" viewBox="0 0 100 100"><path d="M14 78c0-18 14-30 30-30h6c2-16 10-26 22-26 10 0 16 8 16 14 0 8-8 10-16 10-2 12 4 22 4 32z" fill="#a8d8a8" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><circle cx="78" cy="32" r="3" fill="#3f5f3f"/><path d="M30 50l4-8 4 8M42 46l4-8 4 8" fill="#7fb07f"/><rect x="26" y="76" width="10" height="12" rx="4" fill="#7fb07f"/><rect x="56" y="76" width="10" height="12" rx="4" fill="#7fb07f"/></symbol>
+  <symbol id="t-coelho" viewBox="0 0 100 100"><ellipse cx="38" cy="28" rx="9" ry="22" fill="#fff" stroke="#f3a9b7" stroke-width="3"/><ellipse cx="62" cy="28" rx="9" ry="22" fill="#fff" stroke="#f3a9b7" stroke-width="3"/><ellipse cx="38" cy="30" rx="4" ry="14" fill="#f6c3cd"/><ellipse cx="62" cy="30" rx="4" ry="14" fill="#f6c3cd"/><circle cx="50" cy="66" r="26" fill="#fff" stroke="#f3a9b7" stroke-width="3" stroke-dasharray="5 4"/><circle cx="41" cy="62" r="3" fill="#5b4650"/><circle cx="59" cy="62" r="3" fill="#5b4650"/><path d="M46 70h8l-4 4z" fill="#ee8a9c"/><path d="M68 44l6 4-6 4z M68 44l-6 4 6 4z" fill="#ee8a9c"/></symbol>
+  <symbol id="t-estrela" viewBox="0 0 100 100"><path d="M50 10l12 26 28 3-21 19 6 28-25-14-25 14 6-28-21-19 28-3z" fill="#ffd9a0" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><circle cx="42" cy="52" r="3" fill="#5b4650"/><circle cx="58" cy="52" r="3" fill="#5b4650"/><path d="M44 60q6 5 12 0" fill="none" stroke="#5b4650" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <symbol id="t-flor" viewBox="0 0 100 100"><g fill="#f6a3b2" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"><circle cx="50" cy="26" r="14"/><circle cx="72" cy="42" r="14"/><circle cx="64" cy="66" r="14"/><circle cx="36" cy="66" r="14"/><circle cx="28" cy="42" r="14"/></g><circle cx="50" cy="48" r="12" fill="#ffd9a0"/></symbol>
+  <symbol id="t-carro" viewBox="0 0 100 100"><path d="M12 66V52l12-4 10-14h30l12 14 12 4v14z" fill="#9cc8e6" stroke="#fff" stroke-width="2" stroke-dasharray="4 4"/><path d="M38 38h12v10H32zM54 38h8l8 10H54z" fill="#fff"/><circle cx="30" cy="68" r="9" fill="#5b4650"/><circle cx="72" cy="68" r="9" fill="#5b4650"/><circle cx="30" cy="68" r="3" fill="#ccc"/><circle cx="72" cy="68" r="3" fill="#ccc"/></symbol>
+  <!-- produtos -->
+  <symbol id="p-toalha" viewBox="0 0 140 140"><rect x="16" y="86" width="108" height="34" rx="10" fill="#bcdcf1"/><rect x="20" y="58" width="100" height="34" rx="10" fill="#fde3e8"/><rect x="24" y="22" width="92" height="42" rx="10" fill="#fff" stroke="#f3a9b7" stroke-width="3"/><path d="M30 54h80" stroke="#f3a9b7" stroke-width="3" stroke-dasharray="6 5"/></symbol>
+  <symbol id="p-fralda" viewBox="0 0 140 140"><rect x="22" y="22" width="96" height="96" rx="8" fill="#fff" stroke="#f6c3cd" stroke-width="4"/><rect x="30" y="30" width="80" height="80" rx="4" fill="none" stroke="#ee8a9c" stroke-width="3" stroke-dasharray="6 5"/></symbol>
+  <symbol id="p-bolsa" viewBox="0 0 140 140"><path d="M44 54c0-30 52-30 52 0" fill="none" stroke="#c9566e" stroke-width="8"/><rect x="18" y="50" width="104" height="74" rx="18" fill="#f6a3b2"/><rect x="30" y="62" width="80" height="50" rx="10" fill="#fff" opacity=".9"/></symbol>
+  <symbol id="p-babador" viewBox="0 0 140 140"><path d="M70 20c-34 0-52 24-52 54 0 28 22 48 52 48s52-20 52-48c0-30-18-54-52-54zm0 20c10 0 16 6 16 12s-6 10-16 10-16-4-16-10 6-12 16-12z" fill="#fff" stroke="#a9cfea" stroke-width="4"/><path d="M70 30c-26 0-42 20-42 44 0 22 18 40 42 40s42-18 42-40" fill="none" stroke="#a9cfea" stroke-width="3" stroke-dasharray="6 5"/></symbol>
+  <symbol id="p-nec" viewBox="0 0 140 140"><path d="M18 50h104l-8 70H26z" fill="#bcdcf1"/><rect x="14" y="40" width="112" height="16" rx="8" fill="#9cc8e6"/><path d="M22 48h96" stroke="#fff" stroke-width="3" stroke-dasharray="4 4"/><circle cx="114" cy="48" r="7" fill="#f0b860"/></symbol>
+  <symbol id="p-manta" viewBox="0 0 140 140"><rect x="16" y="30" width="108" height="84" rx="16" fill="#fde3e8"/><rect x="16" y="30" width="108" height="84" rx="16" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="10 6"/><path d="M16 74h108" stroke="#f6c3cd" stroke-width="6"/></symbol>
+</defs></svg>
+
+<!-- corações flutuando o vídeo todo -->
+<svg class="coracao" style="left:70px;top:150px;--f:-.4s;--r:-12deg" width="90" height="86"><use href="#cor" fill="url(#gr)"/></svg>
+<svg class="coracao" style="right:90px;top:250px;--f:-1.6s;--r:10deg" width="64" height="62"><use href="#cor" fill="url(#ga)"/></svg>
+<svg class="coracao" style="left:110px;bottom:190px;--f:-2.2s;--r:8deg" width="60" height="58"><use href="#cor" fill="url(#ga)"/></svg>
+<svg class="coracao" style="right:80px;bottom:260px;--f:-.9s;--r:-8deg" width="84" height="80"><use href="#cor" fill="url(#gr)"/></svg>
+
+<!-- 1. gancho -->
+<section class="cena" data-in="0" data-out="5.5">
+  <div class="centro" style="top:470px">
+    <div class="a pop" style="--d:.2s"><span class="etiqueta">Para artesãs do bordado ♡</span></div>
+    <h1 class="a sobe" style="--d:.6s;font-size:118px;margin-top:50px">Chega de tirar print de tema!</h1>
+    <h1 class="a sobe" style="--d:2.0s;font-size:76px;margin-top:44px;color:#5f93ba">Sua cliente escolhe sozinha, direto no seu site.</h1>
+  </div>
+</section>
+
+<!-- 2. o problema -->
+<section class="cena" data-in="5.5" data-out="15">
+  <div class="centro" style="top:250px"><h2 class="a sobe" style="--d:5.7s;font-size:74px">Hoje é assim, né?</h2></div>
+  <div class="balao a dir" style="--d:6.3s;top:420px">Oi! Quais temas você tem? 😊</div>
+  <div class="print" style="--d:7.2s;--r:-8deg;left:100px;top:620px"><div class="ilu" style="background:#fde3e8"><svg width="170" height="170"><use href="#t-urso"/></svg></div><div class="t">print_1.jpg</div></div>
+  <div class="print" style="--d:7.5s;--r:6deg;left:410px;top:600px"><div class="ilu" style="background:#e6f2fa"><svg width="170" height="170"><use href="#t-baleia"/></svg></div><div class="t">print_2.jpg</div></div>
+  <div class="print" style="--d:7.8s;--r:-3deg;left:720px;top:640px;width:230px"><div class="ilu" style="background:#fff1e6"><svg width="160" height="160"><use href="#t-lua"/></svg></div><div class="t">print_3.jpg</div></div>
+  <div class="print" style="--d:8.1s;--r:10deg;left:160px;top:870px"><div class="ilu" style="background:#e9f5e9"><svg width="170" height="170"><use href="#t-dino"/></svg></div><div class="t">print_4.jpg</div></div>
+  <div class="print" style="--d:8.4s;--r:-6deg;left:470px;top:900px"><div class="ilu" style="background:#fde3e8"><svg width="170" height="170"><use href="#t-coroa"/></svg></div><div class="t">print_5.jpg</div></div>
+  <div class="print" style="--d:8.7s;--r:4deg;left:740px;top:880px;width:230px"><div class="ilu" style="background:#e6f2fa"><svg width="160" height="160"><use href="#t-nuvem"/></svg></div><div class="t">print_37.jpg</div></div>
+  <div class="balao a dir" style="--d:9.6s;top:1270px">Me manda de novo o do ursinho? 🙈</div>
+  <div class="centro a sobe" style="--d:11.4s;top:1430px"><span class="leg">Print, print, print…<br><b>e o pedido se perde na conversa.</b></span></div>
+</section>
+
+<!-- 3. a virada -->
+<section class="cena" data-in="15" data-out="21.2">
+  <div class="centro" style="top:470px">
+    <div class="a pop" style="--d:15.2s"><span class="etiqueta">A solução ♡</span></div>
+    <h1 class="a sobe" style="--d:15.6s;font-size:96px;margin-top:46px">Agora você terá um site com os seus produtos</h1>
+    <h1 class="a sobe" style="--d:17.0s;font-size:96px;margin-top:30px;color:#5f93ba">e com catálogo de temas!</h1>
+  </div>
+  <svg class="a pop" style="--d:18.2s;position:absolute;left:50%;top:1420px;margin-left:-75px" width="150" height="144"><use href="#cor" fill="url(#gr)"/></svg>
+</section>
+
+<!-- 4. produtos -->
+<section class="cena" data-in="21.2" data-out="31">
+  <div class="centro" style="top:240px"><h2 class="a sobe" style="--d:21.4s;font-size:72px">Seus produtos,<br>lindos e organizados</h2></div>
+  <div class="celular a sobe" style="--d:21.8s">
+    <div class="notch"></div>
+    <div class="tela">
+      <div class="rola" data-rolar="23.6 5 560">
+        <div class="barra"><div class="mini"><svg width="38" height="36"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="nome">Ateliê Fio de Mel</div><div class="sub">Bordados com amor</div></div><svg class="sacola" width="46" height="46"><use href="#sacola"/></svg></div>
+        <div class="chips"><span class="chip on">Todos</span><span class="chip">Kits bebê</span><span class="chip">Toalhas</span><span class="chip">Bolsas</span><span class="chip">Fraldas</span></div>
+        <div class="grade">
+          <div class="prod"><div class="foto" style="background:#fde3e8"><svg width="160" height="160"><use href="#p-toalha"/><use href="#t-urso" x="50" y="20" width="42" height="42"/></svg></div><div class="info"><div class="n">Kit Toalhas Bordadas</div><div class="p">R$ 149,90</div><div class="add">Adicionar</div></div></div>
+          <div class="prod"><div class="foto" style="background:#e6f2fa"><svg width="160" height="160"><use href="#p-fralda"/><use href="#t-baleia" x="45" y="45" width="70" height="70"/></svg></div><div class="info"><div class="n">Fralda Bordada</div><div class="p">R$ 29,90</div><div class="add">Adicionar</div></div></div>
+          <div class="prod"><div class="foto" style="background:#fff1e6"><svg width="160" height="160"><use href="#p-bolsa"/><use href="#t-coroa" x="55" y="68" width="50" height="50"/></svg></div><div class="info"><div class="n">Bolsa Maternidade</div><div class="p">R$ 289,00</div><div class="add">Adicionar</div></div></div>
+          <div class="prod"><div class="foto" style="background:#fde3e8"><svg width="160" height="160"><use href="#p-babador"/><use href="#t-coelho" x="52" y="70" width="56" height="56"/></svg></div><div class="info"><div class="n">Babador Bordado</div><div class="p">R$ 39,90</div><div class="add">Adicionar</div></div></div>
+          <div class="prod"><div class="foto" style="background:#e6f2fa"><svg width="160" height="160"><use href="#p-nec"/><use href="#t-lua" x="56" y="66" width="50" height="50"/></svg></div><div class="info"><div class="n">Nécessaire</div><div class="p">R$ 79,90</div><div class="add">Adicionar</div></div></div>
+          <div class="prod"><div class="foto" style="background:#fff1e6"><svg width="160" height="160"><use href="#p-manta"/><use href="#t-nuvem" x="50" y="34" width="60" height="60"/></svg></div><div class="info"><div class="n">Manta Bordada</div><div class="p">R$ 159,90</div><div class="add">Adicionar</div></div></div>
+          <div class="prod"><div class="foto" style="background:#e9f5e9"><svg width="160" height="160"><use href="#p-toalha"/><use href="#t-dino" x="50" y="20" width="42" height="42"/></svg></div><div class="info"><div class="n">Toalha de Banho</div><div class="p">R$ 99,90</div><div class="add">Adicionar</div></div></div>
+          <div class="prod"><div class="foto" style="background:#fde3e8"><svg width="160" height="160"><use href="#p-fralda"/><use href="#t-flor" x="45" y="45" width="70" height="70"/></svg></div><div class="info"><div class="n">Kit 3 Fraldas</div><div class="p">R$ 84,90</div><div class="add">Adicionar</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="selo a pop" style="--d:24.4s;left:50px;top:820px">📸 Fotos e preços</div>
+  <div class="selo a pop" style="--d:26.4s;right:50px;top:1200px">🗂️ Por categoria</div>
+  <div class="selo a pop" style="--d:28.2s;left:60px;top:1500px">🛍️ Com carrinho</div>
+</section>
+
+<!-- 5. catálogo de temas -->
+<section class="cena" data-in="31" data-out="44">
+  <div class="centro" style="top:200px">
+    <h2 class="a sobe" style="--d:31.2s;font-size:64px">Catálogo de temas com</h2>
+    <div class="a pop contador" style="--d:31.6s;font-size:150px;line-height:1.1">+<span data-conta="31.8 2.6 1300">0</span></div>
+    <h2 class="a sobe" style="--d:32.2s;font-size:46px;color:#5f93ba">imagens das principais programadoras de bordados</h2>
+  </div>
+  <div class="celular a sobe" style="--d:32.6s;top:660px;height:1000px">
+    <div class="notch"></div>
+    <div class="tela">
+      <div class="barra"><div class="mini"><svg width="38" height="36"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="nome">Temas</div><div class="sub">Escolha o bordado da sua peça</div></div></div>
+      <div class="busca">🔎 <span data-digita="34.6 9" data-texto="ursinho"></span><span class="cursor"></span></div>
+      <div style="position:absolute;left:0;right:0;top:220px;bottom:0;overflow:hidden">
+        <div class="rola" data-rolar="38.4 1.8 0">
+          <div class="chips" style="padding-top:0"><span class="chip on">Bebê</span><span class="chip">Safári</span><span class="chip">Princesas</span><span class="chip">Fundo do mar</span><span class="chip">Nomes</span></div>
+          <div class="temas">
+            <div class="tema"><div class="a pop" style="--d:37.2s;position:absolute;inset:-4px;border:5px solid #c9566e;border-radius:22px"></div><div class="ilu" style="background:#fde3e8"><svg width="104" height="104"><use href="#t-urso"/></svg></div><div class="t">Ursinho Balão</div><div class="cod">cód. 0412</div><div class="marca a pop" style="--d:37.4s"><svg width="26" height="26"><use href="#ok"/></svg></div></div>
+            <div class="tema"><div class="ilu" style="background:#e6f2fa"><svg width="104" height="104"><use href="#t-nuvem"/></svg></div><div class="t">Chuva de Amor</div><div class="cod">cód. 0388</div></div>
+            <div class="tema"><div class="ilu" style="background:#fff1e6"><svg width="104" height="104"><use href="#t-arco"/></svg></div><div class="t">Arco-íris</div><div class="cod">cód. 1021</div></div>
+            <div class="tema"><div class="ilu" style="background:#fff1e6"><svg width="104" height="104"><use href="#t-lua"/></svg></div><div class="t">Lua e Estrelas</div><div class="cod">cód. 0733</div></div>
+            <div class="tema"><div class="ilu" style="background:#fde3e8"><svg width="104" height="104"><use href="#t-balao"/></svg></div><div class="t">Balão Aventura</div><div class="cod">cód. 0915</div></div>
+            <div class="tema"><div class="ilu" style="background:#fff1e6"><svg width="104" height="104"><use href="#t-coroa"/></svg></div><div class="t">Coroa Real</div><div class="cod">cód. 0157</div></div>
+            <div class="tema"><div class="ilu" style="background:#e6f2fa"><svg width="104" height="104"><use href="#t-baleia"/></svg></div><div class="t">Baleinha</div><div class="cod">cód. 0644</div></div>
+            <div class="tema"><div class="ilu" style="background:#fde3e8"><svg width="104" height="104"><use href="#t-borb"/></svg></div><div class="t">Borboleta</div><div class="cod">cód. 1187</div></div>
+            <div class="tema"><div class="ilu" style="background:#e9f5e9"><svg width="104" height="104"><use href="#t-dino"/></svg></div><div class="t">Dino Baby</div><div class="cod">cód. 0820</div></div>
+            <div class="tema"><div class="ilu" style="background:#fde3e8"><svg width="104" height="104"><use href="#t-coelho"/></svg></div><div class="t">Coelhinha</div><div class="cod">cód. 0299</div></div>
+            <div class="tema"><div class="ilu" style="background:#fff1e6"><svg width="104" height="104"><use href="#t-estrela"/></svg></div><div class="t">Estrelinha</div><div class="cod">cód. 1240</div></div>
+            <div class="tema"><div class="ilu" style="background:#e6f2fa"><svg width="104" height="104"><use href="#t-carro"/></svg></div><div class="t">Carrinho</div><div class="cod">cód. 0561</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="toque" style="--d:37.1s;left:100px;top:380px"></div>
+    </div>
+  </div>
+  <div class="selo a pop" style="--d:39.2s;left:50%;top:1560px;transform:none;margin-left:-330px">✨ A cliente já escolhe o tema</div>
+</section>
+
+<!-- 6. a encomenda: produto -> carrinho -> WhatsApp -->
+<section class="cena" data-in="44" data-out="51.6"><div class="centro" style="top:240px"><h2 class="a sobe" style="--d:44.2s;font-size:70px">Ela monta a encomenda:<br>tema, nome e cor</h2></div></section>
+<section class="cena" data-in="51.6" data-out="56"><div class="centro" style="top:240px"><h2 class="a sobe" style="--d:51.7s;font-size:70px">Tudo vai pro carrinho…</h2></div></section>
+<section class="cena" data-in="56" data-out="63.6"><div class="centro" style="top:200px"><h2 class="a sobe" style="--d:56.1s;font-size:64px">…e o pedido chega <b style="color:#25a35a">completo</b><br>no seu WhatsApp, com PDF!</h2></div></section>
+<section class="cena" data-in="44" data-out="63.6">
+  <div class="celular a sobe" style="--d:44.5s">
+    <div class="notch"></div>
+    <!-- produto -->
+    <div class="tela">
+      <div class="barra"><div class="mini"><svg width="38" height="36"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="nome">Ateliê Fio de Mel</div><div class="sub">Kits bebê</div></div><div class="sacola"><svg width="46" height="46"><use href="#sacola"/></svg><span class="qtd a pop" style="--d:50.6s">2</span></div></div>
+      <div style="height:300px;background:#fde3e8;display:flex;align-items:center;justify-content:center;position:relative">
+        <svg width="280" height="280" viewBox="0 0 140 140"><use href="#p-toalha"/><use href="#t-urso" class="a pop" style="--d:46.2s;transform-origin:70px 42px" x="38" y="18" width="38" height="40"/><text x="96" y="48" font-family="Dancing Script" font-size="13" fill="#c9566e" text-anchor="middle" data-digita="47.6 6" data-texto="Helena"></text></svg>
+      </div>
+      <div style="padding:16px 22px 0"><div style="font-weight:800;font-size:28px">Kit Toalhas Bordadas</div><div style="font-family:Fredoka;font-weight:600;color:#c9566e;font-size:32px">R$ 149,90</div></div>
+      <div class="campo"><div class="rot">Tema</div><div class="caixa"><span class="a some" style="--d:45.8s;position:absolute">Escolher no catálogo de temas</span><span class="a pop" style="--d:46.0s;display:flex;align-items:center;gap:12px"><svg width="44" height="44"><use href="#t-urso"/></svg>Ursinho Balão · cód. 0412</span></div></div>
+      <div class="campo"><div class="rot">Nome para bordar</div><div class="caixa"><span data-digita="47.6 6" data-texto="Helena"></span><span class="cursor"></span></div></div>
+      <div class="campo"><div class="rot">Cor da linha</div><div class="cores"><span style="background:#f6a3b2" class="on"></span><span style="background:#9cc8e6"></span><span style="background:#ffd9a0"></span><span style="background:#a8d8a8"></span><span style="background:#d8c3ea"></span></div></div>
+      <div class="grande aperta" style="--d:50.1s">Adicionar ao carrinho</div>
+      <div class="toque" style="--d:49.9s;left:284px;top:1000px"></div>
+      <div class="toque" style="--d:45.4s;left:284px;top:568px"></div>
+    </div>
+    <!-- carrinho -->
+    <div class="tela a entra" style="--d:51.6s">
+      <div class="barra"><div style="font-family:Fredoka;font-weight:600;color:#c9566e;font-size:38px">Meu carrinho</div></div>
+      <div class="linha"><div class="th" style="background:#fde3e8"><svg width="80" height="80" viewBox="0 0 140 140"><use href="#p-toalha"/><use href="#t-urso" x="50" y="20" width="42" height="42"/></svg></div><div><div class="n">Kit Toalhas Bordadas</div><div class="d">Tema: Ursinho Balão<br>Nome: Helena · Linha rosa</div></div><div class="p">R$ 149,90</div></div>
+      <div class="linha"><div class="th" style="background:#e6f2fa"><svg width="80" height="80" viewBox="0 0 140 140"><use href="#p-fralda"/><use href="#t-urso" x="45" y="45" width="50" height="50"/></svg></div><div><div class="n">Fralda Bordada</div><div class="d">Tema: Ursinho Balão<br>Nome: Helena · Linha rosa</div></div><div class="p">R$ 29,90</div></div>
+      <div class="total"><span>Total</span><span>R$ 179,80</span></div>
+      <div class="campo" style="margin-top:22px"><div class="rot">Seu nome</div><div class="caixa">Mariana Souza</div></div>
+      <div class="campo"><div class="rot">Entrega</div><div class="caixa">Correios · São Paulo/SP</div></div>
+      <div class="grande zap aperta" style="--d:55.3s;margin-top:30px">Finalizar pedido no WhatsApp</div>
+      <div class="toque" style="--d:55.1s;left:284px;top:840px"></div>
+    </div>
+    <!-- whatsapp -->
+    <div class="tela a entra" style="--d:56s">
+      <div class="zap-topo"><span style="font-size:30px">‹</span><div class="av"><svg width="34" height="32"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="n">Ateliê Fio de Mel</div><div class="s">online</div></div></div>
+      <div class="zap-fundo">
+        <div class="msg a sobe" style="--d:56.8s;top:24px">
+          Olá! Quero fazer um pedido 🧵<br><b style="color:#222">Pedido nº 0127</b><br><br>
+          <b style="color:#222">1x Kit Toalhas Bordadas</b> · R$ 149,90<br><small>Tema: Ursinho Balão (cód. 0412) · Nome: Helena · Linha: rosa</small><br><br>
+          <b style="color:#222">1x Fralda Bordada</b> · R$ 29,90<br><small>Tema: Ursinho Balão (cód. 0412) · Nome: Helena · Linha: rosa</small><br><br>
+          <b style="color:#222">Total: R$ 179,80</b><br>Cliente: Mariana Souza<br>Entrega: Correios · São Paulo/SP
+          <span class="h">10:42 ✓✓</span>
+        </div>
+        <div class="msg a sobe" style="--d:58.4s;top:470px;padding-bottom:30px"><div class="pdf"><div class="ic">PDF</div><div><div style="font-weight:800">Pedido-0127.pdf</div><div style="font-size:16px;color:#555">Pedido completo</div></div></div><span class="h">10:42 ✓✓</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="selo a pop" style="--d:59.8s;left:40px;top:1470px">✅ Sem esquecer nenhum detalhe</div>
+</section>
+
+<!-- 7. painel -->
+<section class="cena" data-in="63.6" data-out="70.5"><div class="centro" style="top:240px"><h2 class="a sobe" style="--d:63.8s;font-size:72px">No seu painel, você vê<br>todos os pedidos</h2></div></section>
+<section class="cena" data-in="70.5" data-out="77.5"><div class="centro" style="top:240px"><h2 class="a sobe" style="--d:70.6s;font-size:72px">E edita o seu site<br>quando quiser</h2></div></section>
+<section class="cena" data-in="63.6" data-out="77.5">
+  <div class="painel a sobe" style="--d:64.1s">
+    <div class="p-topo"><div class="mini" style="width:70px;height:70px;border-radius:50%;background:#fff;border:3px dashed #ee8a9c;display:flex;align-items:center;justify-content:center"><svg width="42" height="40"><use href="#cor" fill="url(#gr)"/></svg></div><div><div class="nome">Painel · Ateliê Fio de Mel</div><div style="font-size:22px;color:#93727b">Olá! Que bom te ver ♡</div></div></div>
+    <div class="abas"><span class="aba on">Pedidos</span><span class="aba">Meu site</span><span class="aba">Temas</span></div>
+    <div class="ped dest a dir" style="--d:65.2s"><span class="num">#0127</span><div class="q">Mariana Souza <span class="novo">Novo</span><small>Kit Toalhas + Fralda · Ursinho Balão · Helena</small></div><span class="v">R$ 179,80</span></div>
+    <div class="ped a dir" style="--d:65.6s"><span class="num">#0126</span><div class="q">Juliana Lima<small>Bolsa Maternidade · Coroa Real · Theo</small></div><span class="v">R$ 289,00</span></div>
+    <div class="ped a dir" style="--d:66.0s"><span class="num">#0125</span><div class="q">Camila Rocha<small>Kit 3 Fraldas · Baleinha · Davi</small></div><span class="v">R$ 84,90</span></div>
+    <div class="ped a dir" style="--d:66.4s"><span class="num">#0124</span><div class="q">Patrícia Alves<small>Manta Bordada · Lua e Estrelas · Alice</small></div><span class="v">R$ 159,90</span></div>
+    <div class="ped a dir" style="--d:66.8s"><span class="num">#0123</span><div class="q">Fernanda Dias<small>Babador · Coelhinha · Laura</small></div><span class="v">R$ 39,90</span></div>
+    <!-- editar o site -->
+    <div class="edita a entra" style="--d:70.5s">
+      <div class="p-topo"><div class="nome">Painel · Ateliê Fio de Mel</div></div>
+      <div class="abas"><span class="aba">Pedidos</span><span class="aba on">Meu site</span><span class="aba">Temas</span></div>
+      <div style="display:flex;gap:30px;padding:30px">
+        <div style="width:300px;height:300px;border-radius:30px;background:#fde3e8;display:flex;align-items:center;justify-content:center;flex:none"><svg width="240" height="240" viewBox="0 0 140 140"><use href="#p-bolsa"/><use href="#t-coroa" x="48" y="64" width="44" height="44"/></svg></div>
+        <div style="flex:1;font-size:26px">
+          <div style="font-weight:800;margin-bottom:8px">Nome do produto</div><div class="caixa" style="font-size:28px">Bolsa Maternidade</div>
+          <div style="font-weight:800;margin:20px 0 8px">Preço</div><div class="caixa" style="font-size:28px">R$ <span class="a some" style="--d:72.4s;margin-left:8px">289,00</span><span style="position:absolute;margin-left:46px" data-digita="72.8 7" data-texto="269,00"></span></div>
+        </div>
+      </div>
+      <div style="padding:0 30px;font-size:26px"><div style="font-weight:800;margin-bottom:8px">Descrição</div><div class="caixa" style="font-size:26px;line-height:1.4">Bolsa maternidade bordada com o tema e o nome que você escolher ♡</div></div>
+      <div style="padding:24px 30px;font-size:26px;display:flex;gap:16px;flex-wrap:wrap"><span class="chip on" style="font-size:24px">+ Novo produto</span><span class="chip" style="font-size:24px">Fotos</span><span class="chip" style="font-size:24px">Categorias</span><span class="chip" style="font-size:24px">Cores e logo</span></div>
+      <div class="grande aperta" style="--d:74.4s;margin:10px 30px 0;font-size:34px">Salvar</div>
+      <div class="toque" style="--d:74.2s;left:480px;top:830px"></div>
+      <div class="toast a pop" style="--d:74.8s">Site atualizado ✓</div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. com ou sem catálogo -->
+<section class="cena" data-in="77.5" data-out="84">
+  <div class="centro" style="top:300px"><h2 class="a sobe" style="--d:77.7s;font-size:80px">Você escolhe:</h2></div>
+  <div class="op a esq" style="--d:78.3s;top:560px"><h2>Site com seus produtos</h2><p>Catálogo, carrinho, pedido no WhatsApp com PDF e painel.</p></div>
+  <div class="centro a pop" style="--d:79.3s;top:950px;font-family:Fredoka;font-weight:600;font-size:60px;color:#93727b">ou</div>
+  <div class="op azul a dir" style="--d:79.9s;top:1060px"><h2>Produtos + catálogo de temas</h2><p>Tudo isso e mais de <b>1.300 temas</b> para a cliente escolher.</p></div>
+</section>
+
+<!-- 9. resumo -->
+<section class="cena" data-in="84" data-out="92">
+  <div class="centro" style="top:270px"><h2 class="a sobe" style="--d:84.2s;font-size:72px">No seu site você tem:</h2></div>
+  <div class="lista">
+    <div class="item a esq" style="--d:84.7s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Seus produtos com fotos e preços</div>
+    <div class="item a esq" style="--d:85.2s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Carrinho de compras</div>
+    <div class="item a esq" style="--d:85.7s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Pedido completo no WhatsApp, com PDF</div>
+    <div class="item a esq" style="--d:86.2s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Painel para editar o site</div>
+    <div class="item a esq" style="--d:86.7s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Todos os pedidos num só lugar</div>
+    <div class="item a esq" style="--d:87.2s"><span class="icone"><svg width="46" height="46"><use href="#ok"/></svg></span>Opcional: +1.300 temas de bordado</div>
+  </div>
+</section>
+
+<!-- 10. chamada final -->
+<section class="cena" data-in="92" data-out="999">
+  <div class="blob a pop" style="--d:92.1s"></div>
+  <img class="isa a sobe" style="--d:92.3s" src="../public/isa.webp">
+  <div class="centro" style="top:1090px">
+    <div class="a pop" style="--d:92.9s"><span class="etiqueta">Isa Barros Ateliê</span></div>
+    <h1 class="a sobe" style="--d:93.2s;font-size:84px;margin-top:30px">Chega de print!<br>Vamos montar<br>o seu site?</h1>
+    <div class="a pop" style="--d:94.2s;margin-top:50px"><span class="botao pulsa">Me chama no direct ♡</span></div>
+  </div>
+</section>
+
+<script>
+const DURACAO = 100;
+const FADE = 0.4;
+const cenas = [...document.querySelectorAll('.cena')];
+const rolam = [...document.querySelectorAll('[data-rolar]')];
+const digitam = [...document.querySelectorAll('[data-digita]')];
+const contam = [...document.querySelectorAll('[data-conta]')];
+document.getAnimations().forEach(a => a.pause());
+const suave = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
+window.seek = t => {
+  for (const c of cenas) {
+    const i = +c.dataset.in, o = +c.dataset.out;
+    const op = Math.min(suave((t - i) / FADE + (i === 0 ? 1 : 0)), 1 - suave((t - o + FADE) / FADE));
+    c.style.opacity = op;
+    c.style.visibility = op > 0 ? 'visible' : 'hidden';
+  }
+  for (const el of rolam) {
+    const [ini, dur, dist] = el.dataset.rolar.split(' ').map(Number);
+    el.style.transform = `translateY(${-suave((t - ini) / dur) * dist}px)`;
+  }
+  for (const el of digitam) {
+    const [ini, cps] = el.dataset.digita.split(' ').map(Number);
+    const n = Math.max(0, Math.floor((t - ini) * cps));
+    el.textContent = el.dataset.texto.slice(0, n);
+  }
+  for (const el of contam) {
+    const [ini, dur, ate] = el.dataset.conta.split(' ').map(Number);
+    const x = Math.min(1, Math.max(0, (t - ini) / dur));
+    el.textContent = Math.round((1 - (1 - x) ** 3) * ate).toLocaleString('pt-BR');
+  }
+  for (const a of document.getAnimations()) a.currentTime = t * 1000;
+};
+window.DURACAO = DURACAO;
+seek(0);
+</script>
+</body></html>
