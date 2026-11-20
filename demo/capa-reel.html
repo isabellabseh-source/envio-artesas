@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- Capa do Reel (1080x1920). O essencial fica no miolo 1080x1440 (corte da grade do perfil). -->
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1080px;height:1920px;overflow:hidden;background:#fff8f3;font-family:Nunito,sans-serif;color:#5b4650;position:relative}
+.fundo{position:absolute;inset:0;background:radial-gradient(900px 700px at 100% 0%,#e6f2fa,transparent 70%),radial-gradient(900px 800px at 0% 100%,#fde3e8,transparent 70%)}
+.borda{position:absolute;inset:24px;border:3px dashed #f3a9b7;border-radius:40px}
+.topo{position:absolute;left:70px;right:70px;top:270px;text-align:center}
+.etiqueta{display:inline-block;background:#bcdcf1;color:#3d6f91;font-weight:800;font-size:36px;padding:12px 32px;border-radius:999px}
+h1{font-family:Fredoka,sans-serif;font-weight:600;color:#c9566e;font-size:118px;line-height:1.0;margin-top:26px;text-shadow:0 4px 0 #fff}
+h1 span{color:#5f93ba}
+.blob{position:absolute;right:-40px;top:820px;width:720px;height:700px;background:#fde3e8;border-radius:46% 54% 48% 52% / 55% 48% 52% 45%}
+.isa{position:absolute;right:-70px;top:860px;width:760px}
+.celular{position:absolute;left:70px;top:740px;width:420px;height:820px;background:#fff;border:12px solid #5b4650;border-radius:54px;overflow:hidden;box-shadow:0 30px 60px rgba(91,70,80,.3);transform:rotate(-6deg)}
+.celular img{width:100%;display:block}
+.notch{position:absolute;left:50%;top:0;width:130px;height:26px;margin-left:-65px;background:#5b4650;border-radius:0 0 16px 16px;z-index:2}
+.selo{position:absolute;padding:16px 28px;background:#fff;border:3px dashed #f3a9b7;border-radius:999px;font-family:Fredoka,sans-serif;font-weight:600;font-size:40px;color:#c9566e;box-shadow:0 8px 20px rgba(222,120,142,.22);white-space:nowrap}
+.selo.azul{border-color:#a9cfea;color:#3d6f91}
+.faixa{position:absolute;left:70px;right:70px;top:1565px;text-align:center}
+.botao{display:inline-block;background:linear-gradient(#f6a3b2,#ee8a9c);color:#fff;font-family:Fredoka,sans-serif;font-weight:600;font-size:50px;padding:22px 56px;border-radius:999px;box-shadow:0 8px 0 #d97087}
+.coracao{position:absolute}
+</style></head><body>
+<div class="fundo"></div>
+<div class="borda"></div>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <radialGradient id="gr" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#ffc2cc"/><stop offset="1" stop-color="#f08a9c"/></radialGradient>
+  <radialGradient id="ga" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#d6ebf8"/><stop offset="1" stop-color="#93bfdf"/></radialGradient>
+  <symbol id="cor" viewBox="0 0 100 96"><path d="M50 88C22 68 6 52 6 32 6 18 17 8 30 8c9 0 16 5 20 12 4-7 11-12 20-12 13 0 24 10 24 24 0 20-16 36-44 56z"/><ellipse cx="30" cy="26" rx="10" ry="6" fill="#fff" opacity=".65" transform="rotate(-30 30 26)"/></symbol>
+</defs></svg>
+<svg class="coracao" style="left:80px;top:140px;transform:rotate(-12deg)" width="90" height="86"><use href="#cor" fill="url(#gr)"/></svg>
+<svg class="coracao" style="right:100px;top:200px;transform:rotate(10deg)" width="64" height="62"><use href="#cor" fill="url(#ga)"/></svg>
+<svg class="coracao" style="left:120px;bottom:170px" width="60" height="58"><use href="#cor" fill="url(#ga)"/></svg>
+<svg class="coracao" style="right:90px;bottom:200px;transform:rotate(-8deg)" width="84" height="80"><use href="#cor" fill="url(#gr)"/></svg>
+
+<div class="topo">
+  <span class="etiqueta">Para artesãs do bordado ♡</span>
+  <h1>Chega de print<br><span>de tema!</span></h1>
+</div>
+
+<div class="blob"></div>
+<img class="isa" src="../public/isa.webp">
+<div class="celular"><div class="notch"></div><img src="video-assets/modal.jpg"></div>
+
+<div class="selo" style="left:400px;top:760px">✨ +1.300 temas</div>
+<div class="selo azul" style="left:440px;top:1380px">🛍️ Pedido no WhatsApp</div>
+
+<div class="faixa"><span class="botao">Seu site 100% pronto ♡</span></div>
+</body></html>
