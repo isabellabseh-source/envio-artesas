@@ -1,6 +1,5 @@
 import 'server-only';
 import { Document, Image, Page, StyleSheet, Text, View, renderToBuffer } from '@react-pdf/renderer';
-import sharp from 'sharp';
 import { lerFoto } from './store';
 import { Artesa, FOTOS_MIN, Foto, STATUS_LABEL, progresso } from './types';
 
@@ -31,27 +30,63 @@ const s = StyleSheet.create({
 });
 
 type Img = { data: Buffer; format: 'jpg' | 'png' };
+type Sharp = typeof import('sharp').default;
+
+/**
+ * sharp is a native module. On some hosts (Hostinger's shared Node.js plan) it may not load, or may
+ * use more memory than the plan allows. It is loaded only when needed, and if it fails the PDF still
+ * comes out, with the photos as they were uploaded (the browser already shrank them to 1600px).
+ */
+let sharpCarregado: Promise<Sharp | null> | null = null;
+function carregarSharp() {
+  sharpCarregado ??= import('sharp')
+    .then((m) => ((m as unknown as { default?: Sharp }).default ?? (m as unknown as Sharp)))
+    .then((sh) => {
+      sh.concurrency(1);
+      sh.cache(false);
+      return sh;
+    })
+    .catch((e) => {
+      console.error('[pdf] sharp indisponível, usando as fotos sem reduzir:', e);
+      return null;
+    });
+  return sharpCarregado;
+}
+
+/** Recognizes the file by its first bytes; react-pdf only reads JPEG and PNG, anything else breaks the whole PDF. */
+function formatoDe(b: Buffer): Img['format'] | null {
+  if (b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return 'jpg';
+  if (b.length > 8 && b.readUInt32BE(0) === 0x89504e47) return 'png';
+  return null;
+}
 
 /** Loads every photo once, shrunk so the PDF stays light (full quality goes in the .zip). */
 async function carregarFotos(fotos: Foto[], lado: number) {
   const mapa = new Map<string, Img>();
   const fila = [...new Set(fotos.map((f) => f.path))];
+  const sh = await carregarSharp();
   const trabalhar = async () => {
     for (let p = fila.shift(); p; p = fila.shift()) {
       const original = await lerFoto(p);
       if (!original) continue;
       try {
-        const png = p.endsWith('.png');
-        const img = sharp(original).rotate().resize(lado, lado, { fit: 'inside', withoutEnlargement: true });
-        const data = png ? await img.png().toBuffer() : await img.jpeg({ quality: 72 }).toBuffer();
-        mapa.set(p, { data, format: png ? 'png' : 'jpg' });
+        if (sh) {
+          const png = formatoDe(original) === 'png';
+          const img = sh(original).rotate().resize(lado, lado, { fit: 'inside', withoutEnlargement: true });
+          const data = png ? await img.png().toBuffer() : await img.jpeg({ quality: 72 }).toBuffer();
+          mapa.set(p, { data, format: png ? 'png' : 'jpg' });
+          continue;
+        }
       } catch {
-        // A broken file just doesn't appear in the PDF.
+        // Falls through to the original file below.
       }
+      const format = formatoDe(original);
+      // A file that isn't JPEG or PNG (e.g. HEIC) just doesn't appear in the PDF.
+      if (format) mapa.set(p, { data: original, format });
     }
   };
-  // Many at once: the hosting platform stops functions after 10 seconds.
-  await Promise.all(Array.from({ length: 16 }, trabalhar));
+  // Few at a time: the server's memory is small, and the files are on the same disk.
+  await Promise.all(Array.from({ length: 4 }, trabalhar));
   return mapa;
 }
 
